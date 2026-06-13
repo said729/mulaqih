@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام الملقّح</title>
+<meta name="theme-color" content="#4dbb70">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="الملقّح">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+  const FC = {
+    apiKey:"AIzaSyDdz91OT2YIdUrtH-M5xmnHQ51-eoFUko8",
+    authDomain:"mulaqih.firebaseapp.com",
+    databaseURL:"https://mulaqih-default-rtdb.firebaseio.com",
+    projectId:"mulaqih",
+    storageBucket:"mulaqih.firebasestorage.app",
+    messagingSenderId:"676265199258",
+    appId:"1:676265199258:web:12b0aabaf230b6a28e8123"
+  };
+  const app = initializeApp(FC);
+  const db  = getDatabase(app);
+  window._fbSave = d => set(ref(db,'db'), d).catch(()=>{});
+  window._fbLoad = cb => get(ref(db,'db')).then(s=>cb(s.exists()?s.val():null)).catch(()=>cb(null));
+  window._fbListen = cb => onValue(ref(db,'db'), s=>{ if(s.exists()) cb(s.val()); });
+  window._fbReady = true;
+  document.dispatchEvent(new Event('fbReady'));
+</script>
+<style>
+:root{
+  --bg:#0e1812;--bg2:#141f17;--card:#1a2b1e;--card2:#1f3324;
+  --border:rgba(80,200,120,0.13);
+  --green:#4dbb70;--gdim:rgba(77,187,112,0.10);
+  --gold:#e8c060;--goldim:rgba(232,192,96,0.10);
+  --red:#e06060;--reddim:rgba(224,96,96,0.10);
+  --blue:#60a8e0;
+  --text:#ddeee3;--text2:#8aaa93;--text3:#4a6655;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+
+/* LOGIN */
+.login-page{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.login-page.show{display:flex;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.login-hdr{background:linear-gradient(135deg,#0e1812,#1a3d2b);padding:28px 22px;text-align:center;border-bottom:1px solid var(--border);}
+.login-hdr .ico{font-size:48px;margin-bottom:8px;}
+.login-hdr h1{font-size:20px;font-weight:900;color:var(--green);margin-bottom:3px;}
+.login-hdr p{font-size:12px;color:var(--text3);}
+.login-body{padding:22px;}
+.lerr{background:var(--reddim);border:1px solid var(--red);color:var(--red);padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:13px;display:none;text-align:center;}
+.lerr.show{display:block;}
+
+/* HEADER */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-ic{width:40px;height:40px;background:var(--gdim);border:1.5px solid var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.logo h1{font-size:15px;font-weight:900;color:var(--green);}
+.logo p{font-size:11px;color:var(--text3);}
+.hdr-mid{display:flex;gap:7px;}
+.hst{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:5px 12px;text-align:center;min-width:60px;}
+.hst-n{font-size:17px;font-weight:900;color:var(--green);}
+.hst-l{font-size:10px;color:var(--text3);}
+.hdr-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.hbtn{border:none;border-radius:9px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:7px 14px;white-space:nowrap;}
+.hbtn.primary{background:var(--green);color:#0a1a0e;}
+.hbtn.primary:hover{background:#5fd880;}
+.hbtn.exp{background:rgba(77,187,112,0.12);color:var(--green);border:1px solid var(--green);}
+.hbtn.imp{background:rgba(96,168,224,0.12);color:var(--blue);border:1px solid var(--blue);}
+.hbtn.logout{background:rgba(224,96,96,0.12);color:var(--red);border:1px solid var(--red);}
+
+/* NAV */
+nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 18px;overflow-x:auto;}
+.nb{background:none;border:none;color:var(--text3);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;padding:10px 13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s;display:flex;align-items:center;gap:5px;}
+.nb:hover{color:var(--text);}
+.nb.active{color:var(--green);border-bottom-color:var(--green);}
+
+/* FARMER VIEW */
+.fv-hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;}
+.fv-logo{display:flex;align-items:center;gap:9px;}
+.fv-logo .ico{width:40px;height:40px;background:var(--gdim);border:1.5px solid var(--green);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+.fv-logo h1{font-size:15px;font-weight:900;color:var(--green);}
+.fv-logo p{font-size:11px;color:var(--text3);}
+
+/* MAIN */
+main{padding:18px;max-width:1240px;margin:0 auto;}
+.sec{display:none;}
+.sec.active{display:block;animation:fu .25s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+
+/* STAT CARD */
+.sc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px;}
+.sc-icon{font-size:22px;margin-bottom:7px;}
+.sc-num{font-size:28px;font-weight:900;}
+.sc-lbl{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* PANEL */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:15px;}
+.ph{background:var(--card2);border-bottom:1px solid var(--border);padding:11px 17px;display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;}
+.ph h2{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{background:rgba(255,255,255,0.03);color:var(--text2);font-size:12px;font-weight:700;padding:9px 13px;text-align:right;border-bottom:1px solid var(--border);}
+td{padding:10px 13px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(77,187,112,0.03);}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.g{background:rgba(77,187,112,0.15);color:#6ddc90;}
+.y{background:rgba(232,192,96,0.15);color:#f0cc70;}
+.r{background:rgba(224,96,96,0.15);color:#f07878;}
+.b{background:rgba(96,168,224,0.15);color:#80c0f0;}
+.gr{background:rgba(255,255,255,0.07);color:var(--text2);}
+
+/* BUTTONS */
+.btn{background:var(--green);color:#0a1a0e;border:none;padding:7px 14px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:#5fd880;}
+.btn.out{background:transparent;border:1px solid var(--green);color:var(--green);}
+.btn.out:hover{background:var(--gdim);}
+.btn.rd{background:var(--red);color:#fff;}
+.btn.rd:hover{background:#f07070;}
+.btn.gy{background:rgba(255,255,255,0.07);color:var(--text2);border:1px solid var(--border);}
+.btn.gy:hover{background:rgba(255,255,255,0.12);}
+.btn.sm{padding:4px 10px;font-size:12px;border-radius:7px;}
+
+/* SEARCH */
+.sr{display:flex;gap:8px;align-items:center;padding:11px 17px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.sr input,.sr select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--text);outline:none;}
+.sr input{flex:1;min-width:130px;}
+.sr input:focus,.sr select:focus{border-color:var(--green);}
+
+/* FORM */
+.fgg{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:17px 19px;}
+.fg{display:flex;flex-direction:column;gap:5px;position:relative;}
+.fg label{font-size:12px;font-weight:700;color:var(--text2);}
+.fg input,.fg select,.fg textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--text);outline:none;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--green);}
+.fg.full{grid-column:1/-1;}
+.ff{padding:12px 19px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;padding:12px;}
+.ov.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:15px;width:560px;max-width:100%;max-height:90vh;overflow-y:auto;animation:su .25s ease;box-shadow:0 20px 60px rgba(0,0,0,0.7);}
+.modal.wide{width:760px;}
+.modal.sm{width:380px;}
+@keyframes su{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mh{background:var(--card2);border-bottom:1px solid var(--border);padding:13px 19px;display:flex;align-items:center;justify-content:space-between;border-radius:15px 15px 0 0;}
+.mh h3{font-size:14px;font-weight:700;color:var(--text);}
+.xb{background:rgba(255,255,255,0.08);border:none;color:var(--text2);width:27px;height:27px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.xb:hover{background:rgba(255,255,255,0.18);color:var(--text);}
+
+/* FARMER CARD */
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;padding:15px 17px;}
+.fcard{background:var(--card2);border:1px solid var(--border);border-radius:13px;overflow:hidden;transition:all .2s;}
+.fcard:hover{border-color:rgba(77,187,112,0.4);transform:translateY(-2px);}
+.fcard-top{padding:12px 14px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--border);}
+.fcard-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.fcard-name{font-size:14px;font-weight:700;color:var(--text);}
+.fcard-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.fcard-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);}
+.fcs{padding:9px 0;text-align:center;border-left:1px solid var(--border);}
+.fcs:last-child{border-left:none;}
+.fcs-n{font-size:17px;font-weight:900;}
+.fcs-l{font-size:10px;color:var(--text3);margin-top:1px;}
+.fcard-actions{padding:9px 12px;display:flex;gap:6px;}
+
+/* COW MINI */
+.cmc{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.cmc:hover{border-color:rgba(77,187,112,0.35);}
+
+/* TIMELINE */
+.tl{padding:15px 19px;}
+.tl-item{display:flex;gap:11px;padding-bottom:16px;position:relative;}
+.tl-item:not(:last-child)::after{content:'';position:absolute;right:14px;top:30px;width:2px;bottom:0;background:var(--border);}
+.tl-dot{width:28px;height:28px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;z-index:1;}
+.tl-body{flex:1;}
+.tl-t{font-weight:700;font-size:13px;color:var(--text);}
+.tl-d{font-size:11px;color:var(--text3);margin-top:2px;}
+.tl-n{background:var(--bg);border-right:2px solid var(--green);padding:6px 10px;border-radius:0 7px 7px 0;font-size:12px;color:var(--text2);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+
+/* ALERTS */
+.al-item{display:flex;align-items:flex-start;gap:11px;padding:12px 17px;border-bottom:1px solid var(--border);}
+.al-item:last-child{border-bottom:none;}
+.al-icon{font-size:19px;flex-shrink:0;margin-top:2px;}
+.al-body{flex:1;}
+.al-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.al-sub{font-size:12px;color:var(--text2);}
+.al-item.urg{border-right:3px solid var(--red);background:rgba(224,96,96,0.04);}
+.al-item.warn{border-right:3px solid var(--gold);background:rgba(232,192,96,0.04);}
+.al-item.ok{border-right:3px solid var(--green);background:rgba(77,187,112,0.04);}
+
+/* PROGRESS */
+.prg-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:600;}
+.prg-track{height:7px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;}
+.prg-fill{height:100%;border-radius:10px;}
+
+/* EMPTY */
+.empty{padding:36px 14px;text-align:center;}
+.empty-icon{font-size:38px;margin-bottom:10px;}
+.empty h3{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px;}
+.empty p{font-size:12px;color:var(--text3);}
+
+/* CONFIRM */
+.conf-box{padding:22px;text-align:center;}
+.conf-icon{font-size:42px;margin-bottom:9px;}
+.conf-box h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.conf-box p{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;}
+.conf-btns{display:flex;gap:8px;justify-content:center;}
+
+/* AUTOCOMPLETE */
+.ac-box{position:absolute;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;width:100%;top:100%;margin-top:2px;}
+.ac-item{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--gdim);}
+
+/* DIVIDER */
+.dvdr{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:11px 17px 5px;border-top:1px solid var(--border);}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--card2);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:11px;font-size:13px;font-weight:700;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:780px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .fgrid{grid-template-columns:1fr;}
+  .g2{grid-template-columns:1fr;}
+  .hdr-mid{display:none;}
+  main{padding:11px;}
+  .fgg{grid-template-columns:1fr;}
+  .modal.wide{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-page show" id="loginPage">
+  <div class="login-box">
+    <div class="login-hdr">
+      <div class="ico">💉</div>
+      <h1>نظام الملقّح</h1>
+      <p>إدارة التلقيح الاصطناعي للأبقار</p>
+    </div>
+    <div class="login-body">
+      <div class="lerr" id="loginErr">❌ اسم المستخدم أو كلمة المرور غلط</div>
+      <div class="fg" style="margin-bottom:13px">
+        <label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:5px">اسم المستخدم</label>
+        <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;font-family:'Tajawal',sans-serif;font-size:14px;color:var(--text);outline:none;width:100%">
+      </div>
+      <div class="fg" style="margin-bottom:18px">
+        <label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:5px">كلمة المرور</label>
+        <input type="password" id="loginPass" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')doLogin()" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;font-family:'Tajawal',sans-serif;font-size:14px;color:var(--text);outline:none;width:100%">
+      </div>
+      <button class="btn" style="width:100%;justify-content:center;padding:11px" onclick="doLogin()">🔐 تسجيل الدخول</button>
+      <div style="margin-top:13px;border-top:1px solid var(--border);padding-top:13px">
+        <button class="btn" style="width:100%;justify-content:center;padding:11px;background:rgba(224,96,96,0.15);color:var(--red);border:1px solid var(--red)" onclick="openPublicCall()">📞 استدعاء الملقّح</button>
+      </div>
+      <div id="biometricSection" style="display:none;margin-top:13px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:11px;color:var(--text3)">أو</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <button class="btn out" style="width:100%;justify-content:center;padding:11px;font-size:15px" onclick="loginWithBiometric()">👆 الدخول ببصمة الإصبع</button>
+      </div>
+      <div id="biometricRegister" style="display:none;margin-top:10px;text-align:center">
+        <button style="background:none;border:none;color:var(--text3);font-family:'Tajawal',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline" onclick="registerBiometric()">💾 حفظ البصمة لهذا الجهاز</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLIC CALL MODAL -->
+<div class="ov" id="mPublicCall">
+  <div class="modal sm">
+    <div class="mh" style="background:rgba(224,96,96,0.15)">
+      <h3 style="color:var(--red)">📞 استدعاء الملقّح</h3>
+      <button class="xb" onclick="closeModal('mPublicCall')">×</button>
+    </div>
+    <div style="padding:18px 19px;display:flex;flex-direction:column;gap:13px">
+      <div class="fg">
+        <label>👤 اسمك *</label>
+        <input type="text" id="pub_name" placeholder="اسمك الكامل">
+      </div>
+      <div class="fg">
+        <label>📞 رقم هاتفك *</label>
+        <input type="tel" id="pub_phone" placeholder="06XX XXX XXX">
+      </div>
+      <div class="fg">
+        <label>📍 موقعك الجغرافي</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="pub_location" placeholder="اضغط تحديد..." readonly style="flex:1;font-size:12px">
+          <button class="btn sm" onclick="getPubLocation()">📡 تحديد</button>
+        </div>
+        <div id="pub_location_status" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
+      </div>
+      <div class="fg">
+        <label>📝 ملاحظة (اختياري)</label>
+        <textarea id="pub_note" rows="2" placeholder="مثال: عندي بقرة في شبق..."></textarea>
+      </div>
+      <div id="pub_status" style="display:none;padding:10px;border-radius:9px;font-size:13px;text-align:center;font-weight:700"></div>
+    </div>
+    <div class="ff">
+      <button class="btn rd" onclick="sendPublicCall()">📞 إرسال الاستدعاء</button>
+      <button class="btn gy" onclick="closeModal('mPublicCall')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGER VIEW -->
+<div id="managerView" style="display:none">
+  <div class="fv-hdr">
+    <div class="fv-logo">
+      <div class="ico">👨‍💼</div>
+      <div>
+        <h1 id="mgName">المسؤل</h1>
+        <p>نظام الملقّح — واجهة المسؤل</p>
+      </div>
+    </div>
+    <button class="hbtn logout" onclick="doLogout()">🚪 خروج</button>
+  </div>
+  <nav style="background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 18px;overflow-x:auto">
+    <button class="nb active" data-mg="mgDash"   onclick="goMg('mgDash')">📊 لوحة التحكم</button>
+    <button class="nb"        data-mg="mgNewop"  onclick="goMg('mgNewop')">💉 تسجيل تلقيح</button>
+    <button class="nb"        data-mg="mgHistory" onclick="goMg('mgHistory')">📋 السجل</button>
+    <button class="nb"        data-mg="mgAlerts" onclick="goMg('mgAlerts')">🔔 التنبيهات</button>
+    <button class="nb"        data-mg="mgBirth"  onclick="goMg('mgBirth')">🐣 الولادات</button>
+  </nav>
+  <div style="padding:18px;max-width:1200px;margin:0 auto">
+    <div id="mgDash" class="mg-sec active"></div>
+    <div id="mgNewop" class="mg-sec" style="display:none"></div>
+    <div id="mgHistory" class="mg-sec" style="display:none"></div>
+    <div id="mgAlerts" class="mg-sec" style="display:none"></div>
+    <div id="mgBirth" class="mg-sec" style="display:none"></div>
+  </div>
+</div>
+
+<!-- BIRTH REGISTRATION MODAL -->
+<div class="ov" id="mBirth">
+  <div class="modal">
+    <div class="mh"><h3>🐣 تسجيل ولادة</h3><button class="xb" onclick="closeModal('mBirth')">×</button></div>
+    <div class="fgg">
+      <div class="fg"><label>👨‍🌾 الفلاح *</label>
+        <select id="birth_farmer" onchange="onBirthFarmerChange()"><option value="">— اختر الفلاح —</option></select>
+      </div>
+      <div class="fg"><label>🐄 البقرة الأم *</label>
+        <select id="birth_cow"><option value="">— اختر الفلاح أولاً —</option></select>
+      </div>
+      <div class="fg"><label>📅 تاريخ الولادة *</label>
+        <input type="date" id="birth_date" onchange="calcFirstInsem()">
+      </div>
+      <div class="fg"><label>🐮 جنس المولود</label>
+        <select id="birth_gender"><option value="ذكر">🐂 ذكر</option><option value="أنثى">🐄 أنثى</option></select>
+      </div>
+      <div class="fg"><label>📅 أول تلقيح بعد 45 يوم</label>
+        <input type="date" id="birth_firstInsem" style="opacity:.7" readonly>
+      </div>
+      <div class="fg full"><label>📝 ملاحظات</label>
+        <textarea id="birth_notes" rows="2" placeholder="..."></textarea>
+      </div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveBirth()">✅ تسجيل الولادة</button>
+      <button class="btn gy" onclick="closeModal('mBirth')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- FARMER VIEW -->
+<div id="farmerView" style="display:none">
+  <div class="fv-hdr">
+    <div class="fv-logo">
+      <div class="ico">🐄</div>
+      <div>
+        <h1 id="fvName">ضيعتي</h1>
+        <p>مرحباً بك في نظام الملقّح</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button class="hbtn" style="background:rgba(77,187,112,0.15);color:var(--green);border:1px solid var(--green);font-size:13px" onclick="callInseminator()">📞 استدعاء الملقّح</button>
+      <button class="hbtn logout" onclick="doLogout()">🚪 خروج</button>
+    </div>
+  </div>
+  <div style="padding:18px;max-width:900px;margin:0 auto">
+    <div class="g4" id="fvStats" style="margin-bottom:16px"></div>
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph"><h2>🔔 تنبيهاتي</h2></div>
+      <div id="fvAlerts"></div>
+    </div>
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph">
+        <h2>🐄 أبقاري</h2>
+        <button class="btn out sm" id="fvMoreCowsBtn" style="display:none" onclick="toggleEl('fvCowsExtra',this)">المزيد ←</button>
+      </div>
+      <div id="fvCowsList"></div>
+      <div id="fvCowsExtra" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <div class="ph">
+        <h2>💉 سجل التلقيحات</h2>
+        <button class="btn out sm" id="fvMoreOpsBtn" style="display:none" onclick="toggleEl('fvOpsExtra',this)">المزيد ←</button>
+      </div>
+      <div id="fvOpsList"></div>
+      <div id="fvOpsExtra" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="adminView" style="display:none">
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-ic">💉</div>
+      <div>
+        <h1>نظام الملقّح</h1>
+        <p>إدارة التلقيح الاصطناعي</p>
+      </div>
+    </div>
+    <div class="hdr-mid">
+      <div class="hst"><div class="hst-n" id="hF">0</div><div class="hst-l">فلاح</div></div>
+      <div class="hst"><div class="hst-n" id="hC">0</div><div class="hst-l">بقرة</div></div>
+      <div class="hst"><div class="hst-n" id="hR">—</div><div class="hst-l">نجاح</div></div>
+    </div>
+    <div class="hdr-actions">
+      <button class="hbtn primary" onclick="go('newop')">💉 تسجيل تلقيح</button>
+      <button class="hbtn exp" onclick="exportDB()" title="تصدير">📤</button>
+      <label class="hbtn imp" title="استيراد" style="cursor:pointer">📥<input type="file" accept=".json" onchange="importDB(event)" style="display:none"></label>
+      <button class="hbtn logout" onclick="doLogout()">🚪 خروج</button>
+    </div>
+  </div>
+  <nav>
+    <button class="nb active" data-s="dash"     onclick="go('dash')">📊 لوحة التحكم</button>
+    <button class="nb"        data-s="farmers"  onclick="go('farmers')">👨‍🌾 الفلاحون</button>
+    <button class="nb"        data-s="newop"    onclick="go('newop')">💉 تسجيل تلقيح</button>
+    <button class="nb"        data-s="history"  onclick="go('history')">📋 السجل</button>
+    <button class="nb"        data-s="alerts"   onclick="go('alerts')">🔔 التنبيهات <span id="abadge" style="background:var(--red);color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;margin-right:3px">0</span></button>
+    <button class="nb"        data-s="semen"    onclick="go('semen')">🧪 بنك المني</button>
+    <button class="nb"        data-s="finance"  onclick="go('finance')">💰 المالية</button>
+    <button class="nb"        data-s="settings" onclick="go('settings')">⚙️ الإعدادات</button>
+  </nav>
+  <main>
+
+  <!-- DASHBOARD -->
+  <div class="sec active" id="dash">
+    <div class="g4">
+      <div class="sc"><div class="sc-icon">👨‍🌾</div><div class="sc-num" id="dF" style="color:var(--green)">0</div><div class="sc-lbl">فلاح مسجل</div></div>
+      <div class="sc"><div class="sc-icon">🐄</div><div class="sc-num"  id="dC" style="color:var(--blue)">0</div><div class="sc-lbl">إجمالي الأبقار</div></div>
+      <div class="sc"><div class="sc-icon">💉</div><div class="sc-num"  id="dO" style="color:var(--gold)">0</div><div class="sc-lbl">عملية تلقيح</div></div>
+      <div class="sc"><div class="sc-icon">💰</div><div class="sc-num"  id="dMoney" style="color:var(--gold)">0</div><div class="sc-lbl">درهم إجمالي</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:15px" id="callRequestsPanel" style="display:none">
+      <div class="ph" style="background:rgba(224,96,96,0.15)">
+        <h2 style="color:var(--red)">📞 طلبات الاستدعاء</h2>
+        <button class="btn rd sm" onclick="clearCallRequests()">🗑 مسح الكل</button>
+      </div>
+      <div id="callRequestsList"></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph"><h2>🔔 التنبيهات العاجلة</h2></div>
+      <div id="dashAlerts"></div>
+    </div>
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph">
+        <h2>🐄 آخر الأبقار المسجلة</h2>
+        <button class="btn out sm" id="moreCowsBtn" style="display:none" onclick="go('farmers')">المزيد ←</button>
+      </div>
+      <div id="dashCows"></div>
+    </div>
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph">
+        <h2>💉 آخر التلقيحات</h2>
+        <button class="btn out sm" id="moreOpsBtn" style="display:none" onclick="go('history')">المزيد ←</button>
+      </div>
+      <div id="dashOps"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>📊 إحصائيات النجاح</h2></div>
+      <div style="padding:16px 19px" id="dashStats"></div>
+    </div>
+  </div>
+
+  <!-- FARMERS -->
+  <div class="sec" id="farmers">
+    <div class="panel">
+      <div class="ph"><h2>👨‍🌾 قائمة الفلاحين</h2><button class="btn" onclick="openAddFarmer()">➕ إضافة فلاح</button></div>
+      <div class="sr"><input type="text" id="fsearch" placeholder="🔍 ابحث..." oninput="renderFarmers()"></div>
+      <div class="fgrid" id="fgrid"></div>
+    </div>
+  </div>
+
+  <!-- NEW OP -->
+  <div class="sec" id="newop">
+    <!-- تلقيح عادي -->
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph"><h2>💉 تسجيل تلقيح عادي</h2></div>
+      <div class="fgg">
+        <div class="fg">
+          <label>👨‍🌾 الفلاح * <button class="btn sm" style="margin-right:8px;padding:2px 8px;font-size:11px" onclick="openQuickFarmer()">➕ جديد</button></label>
+          <select id="opFarmer" onchange="onFarmerChange()"><option value="">— اختر الفلاح —</option></select>
+        </div>
+        <div class="fg">
+          <label>🐄 البقرة *</label>
+          <select id="opCow"><option value="">— اختر الفلاح أولاً —</option></select>
+        </div>
+        <div class="fg">
+          <label>📅 تاريخ التلقيح *</label>
+          <input type="date" id="opDate" onchange="calcFollowUp()">
+        </div>
+        <div class="fg">
+          <label>🧬 صنف الثور</label>
+          <input type="text" id="opBreed" placeholder="مثال: Holstein" autocomplete="off" oninput="onBreedInput()">
+          <div id="breedAC" class="ac-box" style="display:none"></div>
+        </div>
+        <div class="fg">
+          <label>🐂 اسم الثور</label>
+          <input type="text" id="opBull" placeholder="مثال: Atlas Pro" autocomplete="off" oninput="onBullInput()">
+          <div id="bullAC" class="ac-box" style="display:none"></div>
+          <div id="bullHint" style="display:none;font-size:11px;color:var(--green);margin-top:3px">💡 سيُحفظ تلقائياً في بنك المني</div>
+        </div>
+        <div class="fg">
+          <label>💰 ثمن التلقيح (درهم)</label>
+          <input type="number" id="opPrice" value="150" min="0">
+        </div>
+        <div class="fg">
+          <label>📍 مرحلة الشبق</label>
+          <select id="opStage">
+            <option>مبكرة (0–6 ساعة)</option>
+            <option selected>وسطى (6–18 ساعة) — مثالية</option>
+            <option>متأخرة (18–24 ساعة)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>🌡️ درجة الذوبان (°C)</label>
+          <input type="number" id="opTemp" value="37" min="35" max="38">
+        </div>
+        <div class="fg">
+          <label>💊 هرمون منشط</label>
+          <select id="opHormone"><option>لا شيء</option><option>GnRH</option><option>PGF2α</option><option>hCG</option></select>
+        </div>
+        <div class="fg">
+          <label>📅 موعد فحص الحمل <span style="color:var(--text3);font-size:11px">(قابل للتعديل)</span></label>
+          <input type="date" id="opFollowUp">
+        </div>
+        <div class="fg full">
+          <label>📝 ملاحظات</label>
+          <textarea id="opNotes" rows="2" placeholder="أي ملاحظات..."></textarea>
+        </div>
+      </div>
+      <div class="ff">
+        <button class="btn" onclick="saveOp()">💾 حفظ العملية</button>
+        <button class="btn gy" onclick="clearOpForm()">🗑 مسح</button>
+      </div>
+    </div>
+
+    <!-- تلقيح سريع -->
+    <div class="panel">
+      <div class="ph"><h2>⚡ تلقيح سريع <span style="font-size:11px;color:var(--text3);font-weight:400">بدون تسجيل مسبق</span></h2></div>
+      <div class="fgg">
+        <div class="fg">
+          <label>👨‍🌾 اسم الفلاح *</label>
+          <input type="text" id="qopFarmer" placeholder="اسم الفلاح مباشرة">
+        </div>
+        <div class="fg">
+          <label>🐄 اسم البقرة *</label>
+          <input type="text" id="qopCow" placeholder="اسم البقرة مباشرة">
+        </div>
+        <div class="fg">
+          <label>📅 تاريخ التلقيح *</label>
+          <input type="date" id="qopDate" onchange="calcQuickFollowUp()">
+        </div>
+        <div class="fg">
+          <label>🧬 صنف الثور</label>
+          <input type="text" id="qopBreed" placeholder="مثال: Holstein">
+        </div>
+        <div class="fg">
+          <label>🐂 اسم الثور</label>
+          <input type="text" id="qopBull" placeholder="مثال: Atlas Pro">
+        </div>
+        <div class="fg">
+          <label>💰 ثمن التلقيح (درهم)</label>
+          <input type="number" id="qopPrice" value="200" min="0">
+        </div>
+        <div class="fg">
+          <label>📅 موعد فحص الحمل</label>
+          <input type="date" id="qopFollowUp">
+        </div>
+        <div class="fg full">
+          <label>📍 موقع الفلاح الجغرافي</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="qopLocation" placeholder="اضغط الزر للتحديد التلقائي..." readonly style="flex:1">
+            <button class="btn sm" onclick="getLocation()">📡 تحديد</button>
+          </div>
+          <div id="locationStatus" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
+        </div>
+        <div class="fg full">
+          <label>📝 ملاحظات</label>
+          <textarea id="qopNotes" rows="2" placeholder="أي ملاحظات..."></textarea>
+        </div>
+      </div>
+      <div class="ff">
+        <button class="btn" style="background:var(--gold);color:#0a1a0e" onclick="saveQuickOp()">⚡ حفظ التلقيح السريع</button>
+        <button class="btn gy" onclick="clearQuickOpForm()">🗑 مسح</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="sec" id="history">
+    <div class="panel">
+      <div class="ph"><h2>📋 سجل كل العمليات</h2></div>
+      <div class="sr">
+        <input type="text" id="hsearch" placeholder="🔍 ابحث..." oninput="renderHistory()">
+        <select id="hfilter" onchange="renderHistory()">
+          <option value="">كل النتائج</option>
+          <option value="حامل">✅ ناجح</option>
+          <option value="فاشل">❌ فاشل</option>
+          <option value="انتظار">⏳ انتظار</option>
+        </select>
+      </div>
+      <div id="histWrap"></div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="sec" id="alerts">
+    <div class="panel"><div class="ph"><h2>🔔 التنبيهات والمواعيد</h2></div><div id="alertsWrap"></div></div>
+  </div>
+
+  <!-- SEMEN BANK -->
+  <div class="sec" id="semen">
+    <div class="g4" id="semenStats"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <span style="font-size:13px;font-weight:700;color:var(--text2)">🧬 الأصناف والعجول</span>
+      <button class="btn" onclick="openAddBreed()">➕ إضافة صنف</button>
+    </div>
+    <div id="breedsWrap"></div>
+  </div>
+
+  <!-- FINANCE -->
+  <div class="sec" id="finance">
+    <div class="g4" id="finStats" style="margin-bottom:16px"></div>
+
+    <!-- تقرير شهري -->
+    <div class="panel" style="margin-bottom:15px">
+      <div class="ph">
+        <h2>📅 التقرير الشهري</h2>
+        <select id="finMonth" onchange="renderFinance()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--text);outline:none"></select>
+      </div>
+      <div id="finMonthly"></div>
+    </div>
+
+    <!-- تفاصيل الفلاحين -->
+    <div class="panel">
+      <div class="ph"><h2>👨‍🌾 حساب كل فلاح</h2></div>
+      <div id="finFarmers"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="sec" id="settings">
+    <div style="max-width:500px">
+
+      <!-- تفعيل/تعطيل المميزات -->
+      <div class="panel" style="margin-bottom:15px">
+        <div class="ph"><h2>🎛️ تفعيل/تعطيل المميزات</h2></div>
+        <div style="padding:8px 0" id="featuresPanel"></div>
+        <div class="ff">
+          <button class="btn" onclick="saveFeatures()">💾 حفظ الإعدادات</button>
+        </div>
+      </div>
+
+
+        <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+          <div style="background:var(--gdim);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:12px;color:var(--text2)">
+            💡 اضغط مرة واحدة فقط باش ترفع بياناتك الحالية لـ Firebase — بعدها كل التغييرات تتزامن تلقائياً مع كل الأجهزة
+          </div>
+          <button class="btn" onclick="uploadToFirebase()">☁️ رفع البيانات الآن</button>
+          <div id="uploadStatus" style="display:none;padding:9px;border-radius:8px;font-size:12px;text-align:center"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:15px">
+        <div class="ph"><h2>📧 إعدادات الإيميل التلقائي</h2></div>
+        <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+          <div class="fg"><label>📬 إيميل الاستقبال</label><input type="email" id="set_email" placeholder="example@gmail.com"></div>
+          <div style="background:var(--gdim);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:12px;color:var(--text2)">
+            💡 سيصلك إيميل تلقائي كل يوم عند فتح النظام إذا كانت هناك مواعيد فحص مستحقة
+          </div>
+          <button class="btn" onclick="saveEmailSettings()">💾 حفظ الإيميل</button>
+          <button class="btn out" onclick="sendTestEmail()">📧 إرسال إيميل تجريبي</button>
+          <div id="emailStatus" style="display:none;padding:9px;border-radius:8px;font-size:12px;text-align:center"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:15px">
+        <div class="ph"><h2>🔑 تغيير كلمة مرور المدير</h2></div>
+        <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+          <div class="fg"><label>كلمة المرور الحالية</label><input type="password" id="set_oldpass" placeholder="..."></div>
+          <div class="fg"><label>كلمة المرور الجديدة</label><input type="password" id="set_newpass" placeholder="..."></div>
+          <div class="fg"><label>تأكيد كلمة المرور الجديدة</label><input type="password" id="set_confpass" placeholder="..."></div>
+          <button class="btn" onclick="changeAdminPass()">💾 حفظ كلمة المرور</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:15px">
+        <div class="ph"><h2>👤 تغيير اسم المستخدم</h2></div>
+        <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+          <div class="fg"><label>اسم المستخدم الجديد</label><input type="text" id="set_newuser" placeholder="..."></div>
+          <div class="fg"><label>كلمة المرور (للتأكيد)</label><input type="password" id="set_userpass" placeholder="..."></div>
+          <button class="btn" onclick="changeAdminUser()">💾 حفظ اسم المستخدم</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><h2>ℹ️ معلومات الحساب</h2></div>
+        <div style="padding:16px 19px">
+          <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--text2)">اسم المستخدم</span>
+            <span id="setInfoUser" style="font-weight:700;color:var(--green)"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:9px 0">
+            <span style="color:var(--text2)">الدور</span>
+            <span style="font-weight:700;color:var(--gold)">👨‍💼 مدير (Admin)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+
+<!-- ADD/EDIT FARMER -->
+<div class="ov" id="mFarmerForm">
+  <div class="modal">
+    <div class="mh"><h3 id="farmerFormTitle">👨‍🌾 إضافة فلاح جديد</h3><button class="xb" onclick="closeModal('mFarmerForm')">×</button></div>
+    <div class="fgg">
+      <div class="fg"><label>الاسم الكامل *</label><input id="ff_name" type="text" placeholder="مثال: محمد بن علي"></div>
+      <div class="fg"><label>رقم الهاتف</label><input id="ff_phone" type="text" placeholder="05XX XXX XXX"></div>
+      <div class="fg"><label>الولاية</label><input id="ff_region" type="text" placeholder="مثال: سطيف"></div>
+      <div class="fg"><label>البلدية</label><input id="ff_village" type="text" placeholder="البلدية"></div>
+      <div class="fg"><label>👤 اسم المستخدم (فلاح) *</label><input id="ff_username" type="text" placeholder="للدخول كفلاح"></div>
+      <div class="fg"><label>🔑 كلمة المرور (فلاح) *</label><input id="ff_password" type="text" placeholder="كلمة المرور"></div>
+      <div class="fg"><label>👨‍💼 اسم المستخدم (مسؤل)</label><input id="ff_mgr_username" type="text" placeholder="للدخول كمسؤل"></div>
+      <div class="fg"><label>🔑 كلمة المرور (مسؤل)</label><input id="ff_mgr_password" type="text" placeholder="كلمة مرور المسؤل"></div>
+      <div class="fg full"><label>📧 الإيميل (للتنبيهات)</label><input id="ff_email" type="email" placeholder="example@gmail.com"></div>
+      <div class="fg full"><label>ملاحظات</label><textarea id="ff_notes" rows="2" placeholder="..."></textarea></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveFarmer()">✅ حفظ</button>
+      <button class="btn gy" onclick="closeModal('mFarmerForm')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK FARMER -->
+<div class="ov" id="mQuickFarmer">
+  <div class="modal sm">
+    <div class="mh"><h3>👨‍🌾 إضافة فلاح سريع</h3><button class="xb" onclick="closeModal('mQuickFarmer')">×</button></div>
+    <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+      <div class="fg"><label>الاسم الكامل *</label><input id="qf_name" type="text" placeholder="اسم الفلاح"></div>
+      <div class="fg"><label>رقم الهاتف</label><input id="qf_phone" type="text" placeholder="05XX XXX XXX"></div>
+      <div class="fg"><label>الولاية</label><input id="qf_region" type="text" placeholder="الولاية"></div>
+      <div class="fg"><label>👤 اسم المستخدم *</label><input id="qf_username" type="text" placeholder="للدخول"></div>
+      <div class="fg"><label>🔑 كلمة المرور *</label><input id="qf_password" type="text" placeholder="كلمة المرور"></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveQuickFarmer()">✅ إضافة وتحديد</button>
+      <button class="btn gy" onclick="closeModal('mQuickFarmer')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- FARMER DETAIL -->
+<div class="ov" id="mFarmerDetail">
+  <div class="modal wide">
+    <div class="mh"><h3 id="farmerDetailTitle">👨‍🌾 تفاصيل الفلاح</h3><button class="xb" onclick="closeModal('mFarmerDetail')">×</button></div>
+    <div id="farmerDetailBody"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT COW -->
+<div class="ov" id="mCowForm">
+  <div class="modal">
+    <div class="mh"><h3 id="cowFormTitle">🐄 إضافة بقرة جديدة</h3><button class="xb" onclick="closeModal('mCowForm')">×</button></div>
+    <div class="fgg">
+      <div class="fg"><label>اسم البقرة *</label><input id="cf_name" type="text" placeholder="مثال: وردة"></div>
+      <div class="fg"><label>رقم التعريف</label><input id="cf_tag" type="text" placeholder="مثال: A-001"></div>
+      <div class="fg"><label>السلالة</label>
+        <select id="cf_breed"><option>Holstein</option><option>Simmental</option><option>Angus</option><option>Brown Swiss</option><option>Friesian</option><option>أخرى</option></select>
+      </div>
+      <div class="fg"><label>تاريخ الميلاد</label><input id="cf_dob" type="date"></div>
+      <div class="fg full"><label>ملاحظات</label><textarea id="cf_notes" rows="2" placeholder="..."></textarea></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveCow()">✅ حفظ</button>
+      <button class="btn gy" onclick="closeModal('mCowForm')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- COW PROFILE -->
+<div class="ov" id="mCowProfile">
+  <div class="modal">
+    <div class="mh"><h3 id="cowProfileTitle">🐄 ملف البقرة</h3><button class="xb" onclick="closeModal('mCowProfile')">×</button></div>
+    <div id="cowProfileBody"></div>
+    <div class="ff">
+      <button class="btn sm" onclick="openUpdateResult()">✏️ تحديث نتيجة</button>
+      <button class="btn gy sm" onclick="closeModal('mCowProfile')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- UPDATE RESULT -->
+<div class="ov" id="mResult">
+  <div class="modal sm">
+    <div class="mh"><h3>✏️ تحديث نتيجة التلقيح</h3><button class="xb" onclick="closeModal('mResult')">×</button></div>
+    <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+      <div class="fg"><label>العملية</label><select id="res_op"></select></div>
+      <div class="fg"><label>النتيجة</label>
+        <select id="res_result">
+          <option value="انتظار">⏳ انتظار فحص</option>
+          <option value="حامل">✅ حامل (ناجح)</option>
+          <option value="فاشل">❌ فاشل</option>
+        </select>
+      </div>
+      <div class="fg"><label>ملاحظة</label><input id="res_note" type="text" placeholder="..."></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveResult()">💾 حفظ</button>
+      <button class="btn gy" onclick="closeModal('mResult')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT BREED -->
+<div class="ov" id="mBreedForm">
+  <div class="modal sm">
+    <div class="mh"><h3 id="breedFormTitle">🧬 إضافة صنف جديد</h3><button class="xb" onclick="closeModal('mBreedForm')">×</button></div>
+    <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+      <div class="fg"><label>اسم الصنف *</label><input id="bf_name" type="text" placeholder="مثال: Holstein"></div>
+      <div class="fg"><label>وصف</label><input id="bf_desc" type="text" placeholder="وصف اختياري"></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveBreed()">✅ حفظ</button>
+      <button class="btn gy" onclick="closeModal('mBreedForm')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT BULL -->
+<div class="ov" id="mBullForm">
+  <div class="modal">
+    <div class="mh"><h3 id="bullFormTitle">🐂 إضافة عجل جديد</h3><button class="xb" onclick="closeModal('mBullForm')">×</button></div>
+    <div class="fgg">
+      <div class="fg"><label>اسم العجل *</label><input id="blf_name" type="text" placeholder="مثال: Atlas Pro"></div>
+      <div class="fg"><label>كود العينة</label><input id="blf_code" type="text" placeholder="مثال: HF-44"></div>
+      <div class="fg"><label>عدد الجرعات *</label><input id="blf_doses" type="number" placeholder="20" min="0"></div>
+      <div class="fg"><label>نسبة الحركة %</label><input id="blf_motility" type="number" placeholder="85" min="0" max="100"></div>
+      <div class="fg"><label>تاريخ التجميع</label><input id="blf_date" type="date"></div>
+      <div class="fg"><label>درجة التخزين</label>
+        <select id="blf_temp"><option>-196°C (نيتروجين سائل)</option><option>-80°C</option><option>4°C (مبرد)</option></select>
+      </div>
+      <div class="fg full"><label>ملاحظات</label><textarea id="blf_notes" rows="2" placeholder="..."></textarea></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="saveBull()">✅ حفظ</button>
+      <button class="btn gy" onclick="closeModal('mBullForm')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="ov" id="mPayment">
+  <div class="modal sm">
+    <div class="mh"><h3>💰 تسجيل دفعة</h3><button class="xb" onclick="closeModal('mPayment')">×</button></div>
+    <div style="padding:16px 19px;display:flex;flex-direction:column;gap:12px">
+      <div class="fg"><label>الفلاح</label><input id="pay_farmer" type="text" readonly style="opacity:.7"></div>
+      <div class="fg"><label>المبلغ المستحق</label><input id="pay_total" type="text" readonly style="opacity:.7;color:var(--red)"></div>
+      <div class="fg"><label>المبلغ المدفوع سابقاً</label><input id="pay_paid" type="text" readonly style="opacity:.7;color:var(--green)"></div>
+      <div class="fg"><label>💵 مبلغ الدفعة الجديدة (درهم)</label><input id="pay_amount" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label>📝 ملاحظة</label><input id="pay_note" type="text" placeholder="مثال: دفع نقداً"></div>
+    </div>
+    <div class="ff">
+      <button class="btn" onclick="savePayment()">💾 تسجيل الدفعة</button>
+      <button class="btn gy" onclick="closeModal('mPayment')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="ov" id="mConfirm">
+  <div class="modal sm">
+    <div class="mh"><h3>⚠️ تأكيد الحذف</h3><button class="xb" onclick="closeModal('mConfirm')">×</button></div>
+    <div class="conf-box">
+      <div class="conf-icon" id="confIcon">🗑</div>
+      <h3 id="confTitle">هل أنت متأكد؟</h3>
+      <p id="confMsg">سيتم الحذف نهائياً.</p>
+      <div class="conf-btns">
+        <button class="btn rd" id="confOk">✅ نعم، احذف</button>
+        <button class="btn gy" onclick="closeModal('mConfirm')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+var DB={farmers:[],cows:[],ops:[],breeds:[],bulls:[],fid:1,cid:1,oid:1,brid:1,blid:1,adminUser:'admin',adminPass:'admin123',notifyEmail:'',lastEmailDate:''};
+var _user=null,_activeFId=null,_activeCId=null,_editResOpId=null;
+var _editFarmerId=null,_editCowId=null,_editBreedId=null,_editBullId=null,_editBullBreedId=null;
+var _pendingDel=null;
+var SAVE_KEY='inseminator_v3';
+var AUTH_KEY='inseminator_auth';
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+var $=function(id){return document.getElementById(id);};
+var gF=function(id){return DB.farmers.find(function(f){return f.id===id;});};
+var gC=function(id){return DB.cows.find(function(c){return c.id===id;});};
+var gO=function(id){return DB.ops.find(function(o){return o.id===id;});};
+var gBr=function(id){return DB.breeds.find(function(b){return b.id===id;});};
+var gBl=function(id){return DB.bulls.find(function(b){return b.id===id;});};
+var fCs=function(fId){return DB.cows.filter(function(c){return c.farmerId===fId;});};
+var fOs=function(fId){return DB.ops.filter(function(o){return o.farmerId===fId;});};
+var cOs=function(cId){return DB.ops.filter(function(o){return o.cowId===cId;});};
+var brBulls=function(brId){return DB.bulls.filter(function(b){return b.breedId===brId;});};
+var lastCOp=function(cId){var a=cOs(cId);return a.length?a[a.length-1]:null;};
+
+function sRate(list){
+  var fin=list.filter(function(o){return o.result==='حامل'||o.result==='فاشل';});
+  if(!fin.length)return null;
+  return Math.round(fin.filter(function(o){return o.result==='حامل';}).length/fin.length*100);
+}
+function rBadge(r){
+  if(r==='حامل')return'<span class="bdg g">✅ حامل</span>';
+  if(r==='فاشل')return'<span class="bdg r">❌ فاشل</span>';
+  if(r==='انتظار')return'<span class="bdg y">⏳ انتظار</span>';
+  return'<span class="bdg gr">—</span>';
+}
+function fmtD(d){
+  if(!d)return'—';
+  try{
+    var dt=new Date(d+'T00:00:00');
+    var dd=String(dt.getDate()).padStart(2,'0');
+    var mm=String(dt.getMonth()+1).padStart(2,'0');
+    var yy=dt.getFullYear();
+    return dd+'/'+mm+'/'+yy;
+  }catch(e){return d;}
+}
+function isOverdue(d){return d&&new Date(d+'T00:00:00')<new Date();}
+function val(id){var el=$(id);return el?el.value:'';}
+function setVal(id,v){var el=$(id);if(el)el.value=(v===undefined||v===null)?'':v;}
+function showToast(msg){var t=$('toastEl');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+function openModal(id){$(id).classList.add('open');}
+function closeModal(id){$(id).classList.remove('open');}
+function toggleEl(id,btn){var el=$(id);var show=el.style.display==='none';el.style.display=show?'block':'none';if(btn)btn.textContent=show?'← أقل':'المزيد ←';}
+document.addEventListener('click',function(e){if(e.target.classList.contains('ov'))e.target.classList.remove('open');});
+
+// ════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════
+function saveDB(){
+  var data={
+    farmers:DB.farmers,cows:DB.cows,ops:DB.ops,breeds:DB.breeds,bulls:DB.bulls,
+    fid:DB.fid,cid:DB.cid,oid:DB.oid,brid:DB.brid,blid:DB.blid,
+    adminUser:DB.adminUser,adminPass:DB.adminPass,notifyEmail:DB.notifyEmail,lastEmailDate:DB.lastEmailDate
+  };
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}
+  try{if(window._fbSave)window._fbSave(data);}catch(e){}
+}
+function loadDB(){
+  try{
+    var raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return false;
+    var d=JSON.parse(raw);
+    applyData(d);
+    return true;
+  }catch(e){return false;}
+}
+function applyData(d){
+  if(!d)return;
+  DB.farmers=d.farmers||[];DB.cows=d.cows||[];DB.ops=d.ops||[];
+  DB.breeds=d.breeds||[];DB.bulls=d.bulls||[];
+  DB.fid=d.fid||1;DB.cid=d.cid||1;DB.oid=d.oid||1;DB.brid=d.brid||1;DB.blid=d.blid||1;
+  if(d.adminUser)DB.adminUser=d.adminUser;
+  if(d.adminPass)DB.adminPass=d.adminPass;
+  if(d.notifyEmail)DB.notifyEmail=d.notifyEmail;
+  if(d.lastEmailDate)DB.lastEmailDate=d.lastEmailDate;
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(d));}catch(e){}
+}
+function exportDB(){
+  try{
+    var data=JSON.stringify({version:3,date:new Date().toISOString(),farmers:DB.farmers,cows:DB.cows,ops:DB.ops,breeds:DB.breeds,bulls:DB.bulls,fid:DB.fid,cid:DB.cid,oid:DB.oid,brid:DB.brid,blid:DB.blid,adminUser:DB.adminUser,adminPass:DB.adminPass,notifyEmail:DB.notifyEmail},null,2);
+    var blob=new Blob([data],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='نسخة-احتياطية-'+new Date().toLocaleDateString('ar-DZ').replace(/\//g,'-')+'.json';
+    a.click();URL.revokeObjectURL(url);
+    showToast('✅ تم تصدير النسخة الاحتياطية!');
+  }catch(e){showToast('❌ فشل التصدير');}
+}
+function importDB(event){
+  var file=event.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var d=JSON.parse(e.target.result);
+      if(!d.farmers||!d.cows){showToast('❌ الملف غير صحيح');return;}
+      if(!confirm('⚠️ سيتم استبدال البيانات الحالية بـ:\n'+d.farmers.length+' فلاح، '+d.cows.length+' بقرة'))return;
+      applyData(d);saveDB();renderAll();
+      showToast('✅ تم الاستيراد: '+DB.farmers.length+' فلاح، '+DB.cows.length+' بقرة');
+    }catch(err){showToast('❌ خطأ في قراءة الملف');}
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+function clearDB(){
+  if(!confirm('⚠️ هل أنت متأكد؟ سيتم حذف كل البيانات نهائياً!'))return;
+  localStorage.removeItem(SAVE_KEY);
+  DB.farmers=[];DB.cows=[];DB.ops=[];DB.breeds=[];DB.bulls=[];
+  DB.fid=1;DB.cid=1;DB.oid=1;DB.brid=1;DB.blid=1;
+  showToast('🗑 تم مسح كل البيانات');renderAll();
+}
+function uploadToFirebase(){
+  var st=$('uploadStatus');
+  if(!window._fbSave){
+    if(st){st.style.display='block';st.style.background='var(--reddim)';st.style.color='var(--red)';st.textContent='❌ Firebase غير متصل — انتظر ثوانٍ وحاول مجدداً';}
+    return;
+  }
+  if(st){st.style.display='block';st.style.background='var(--gdim)';st.style.color='var(--green)';st.textContent='⏳ جاري الرفع...';}
+  try{
+    window._fbSave({farmers:DB.farmers,cows:DB.cows,ops:DB.ops,breeds:DB.breeds,bulls:DB.bulls,fid:DB.fid,cid:DB.cid,oid:DB.oid,brid:DB.brid,blid:DB.blid,adminUser:DB.adminUser,adminPass:DB.adminPass,notifyEmail:DB.notifyEmail||''});
+    setTimeout(function(){
+      if(st){st.textContent='✅ تم الرفع! الآن كل الأجهزة ستشوف نفس البيانات';}
+      showToast('✅ تم رفع البيانات لـ Firebase!');
+    },2000);
+  }catch(e){if(st){st.style.background='var(--reddim)';st.style.color='var(--red)';st.textContent='❌ فشل: '+e.message;}}
+}
+
+// ════════════════════════════════════════
+// BIOMETRIC — بصمة الإصبع
+// ════════════════════════════════════════
+var BIO_KEY = 'inseminator_bio';
+
+function isBiometricSupported(){
+  return window.PublicKeyCredential && navigator.credentials && location.protocol === 'https:';
+}
+
+function initBiometric(){
+  if(!isBiometricSupported()) return;
+  var saved = null;
+  try{ saved = localStorage.getItem(BIO_KEY); }catch(e){}
+  if(saved){
+    // عنده بصمة محفوظة — اعرض زر البصمة
+    document.getElementById('biometricSection').style.display = 'block';
+  }
+}
+
+function registerBiometric(){
+  if(!isBiometricSupported()){ showToast('❌ جهازك لا يدعم البصمة'); return; }
+  var username = (val('loginUser')||'').trim();
+  if(!username){ showToast('⚠️ أدخل اسم المستخدم أولاً'); return; }
+
+  var challenge = new Uint8Array(32);
+  crypto.getRandomValues(challenge);
+  var userId = new TextEncoder().encode(username);
+
+  navigator.credentials.create({
+    publicKey: {
+      challenge: challenge,
+      rp: { name: 'نظام الملقّح', id: location.hostname },
+      user: { id: userId, name: username, displayName: username },
+      pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        userVerification: 'required'
+      },
+      timeout: 60000
+    }
+  }).then(function(cred){
+    var credData = {
+      id: cred.id,
+      username: username,
+      rawId: Array.from(new Uint8Array(cred.rawId))
+    };
+    try{ localStorage.setItem(BIO_KEY, JSON.stringify(credData)); }catch(e){}
+    document.getElementById('biometricSection').style.display = 'block';
+    document.getElementById('biometricRegister').style.display = 'none';
+    showToast('✅ تم حفظ البصمة بنجاح!');
+  }).catch(function(e){
+    showToast('❌ فشل حفظ البصمة: '+e.message);
+  });
+}
+
+function loginWithBiometric(){
+  if(!isBiometricSupported()){ showToast('❌ جهازك لا يدعم البصمة'); return; }
+  var savedRaw = null;
+  try{ savedRaw = localStorage.getItem(BIO_KEY); }catch(e){}
+  if(!savedRaw){ showToast('⚠️ لا توجد بصمة محفوظة'); return; }
+  var saved = JSON.parse(savedRaw);
+
+  var challenge = new Uint8Array(32);
+  crypto.getRandomValues(challenge);
+
+  navigator.credentials.get({
+    publicKey: {
+      challenge: challenge,
+      rpId: location.hostname,
+      allowCredentials: [{
+        id: new Uint8Array(saved.rawId),
+        type: 'public-key'
+      }],
+      userVerification: 'required',
+      timeout: 60000
+    }
+  }).then(function(){
+    // البصمة صحيحة — ادخل بنفس المستخدم المحفوظ
+    var username = saved.username;
+    if(username === DB.adminUser){
+      _user = {role:'admin'};
+      try{sessionStorage.setItem(AUTH_KEY,JSON.stringify(_user));}catch(e){}
+      showAdminView();
+    } else {
+      var farmer = DB.farmers.find(function(f){ return f.username === username; });
+      if(farmer){
+        _user = {role:'farmer', farmerId:farmer.id};
+        try{sessionStorage.setItem(AUTH_KEY,JSON.stringify(_user));}catch(e){}
+        showFarmerView(farmer.id);
+      } else {
+        showToast('❌ المستخدم غير موجود');
+      }
+    }
+  }).catch(function(e){
+    showToast('❌ فشل التحقق من البصمة');
+  });
+}
+
+
+function doLogin(){
+  var user=(val('loginUser')||'').trim();
+  var pass=(val('loginPass')||'').trim();
+  var errEl=$('loginErr');
+  errEl.classList.remove('show');
+  if(!user||!pass){errEl.classList.add('show');return;}
+  // أدمن
+  if(user===DB.adminUser&&pass===DB.adminPass){
+    _user={role:'admin'};
+    try{sessionStorage.setItem(AUTH_KEY,JSON.stringify(_user));}catch(e){}
+    if(isBiometricSupported()){try{if(!localStorage.getItem(BIO_KEY)){setTimeout(function(){if(confirm('💾 هل تريد حفظ بصمة إصبعك؟')){setVal('loginUser',DB.adminUser);registerBiometric();}},500);}}catch(e){}}
+    showAdminView();return;
+  }
+  // فلاح عادي
+  var farmer=DB.farmers.find(function(f){return f.username===user&&f.password===pass;});
+  if(farmer){
+    _user={role:'farmer',farmerId:farmer.id};
+    try{sessionStorage.setItem(AUTH_KEY,JSON.stringify(_user));}catch(e){}
+    if(isBiometricSupported()){try{if(!localStorage.getItem(BIO_KEY)){setTimeout(function(){if(confirm('💾 هل تريد حفظ بصمة إصبعك؟')){setVal('loginUser',farmer.username);registerBiometric();}},500);}}catch(e){}}
+    showFarmerView(farmer.id);return;
+  }
+  // مسؤل الفلاح
+  var managerFarmer=DB.farmers.find(function(f){return f.mgrUsername&&f.mgrUsername===user&&f.mgrPassword===pass;});
+  if(managerFarmer){
+    _user={role:'manager',farmerId:managerFarmer.id};
+    try{sessionStorage.setItem(AUTH_KEY,JSON.stringify(_user));}catch(e){}
+    showManagerView(managerFarmer.id);return;
+  }
+  errEl.classList.add('show');
+}
+function doLogout(){
+  _user=null;
+  try{sessionStorage.removeItem(AUTH_KEY);}catch(e){}
+  $('adminView').style.display='none';
+  $('farmerView').style.display='none';
+  $('managerView').style.display='none';
+  $('loginPage').classList.add('show');
+  setVal('loginUser','');setVal('loginPass','');
+  $('loginErr').classList.remove('show');
+}
+function showAdminView(){
+  $('loginPage').classList.remove('show');
+  $('farmerView').style.display='none';
+  $('adminView').style.display='block';
+  renderAll();
+}
+function showFarmerView(fId){
+  $('loginPage').classList.remove('show');
+  $('adminView').style.display='none';
+  $('farmerView').style.display='block';
+  renderFarmerView(fId);
+}
+
+// ════════════════════════════════════════
+// HEADER & ALERTS
+// ════════════════════════════════════════
+function updateHeader(){
+  var r=sRate(DB.ops),rt=r!==null?r+'%':'—';
+  ['hF','dF'].forEach(function(id){var el=$(id);if(el)el.textContent=DB.farmers.length;});
+  ['hC','dC'].forEach(function(id){var el=$(id);if(el)el.textContent=DB.cows.length;});
+  ['hR'].forEach(function(id){var el=$(id);if(el)el.textContent=rt;});
+  var dO=$('dO');if(dO)dO.textContent=DB.ops.length;
+  var totalMoney=DB.ops.reduce(function(s,o){return s+(parseInt(o.price)||0);},0);
+  var dM=$('dMoney');if(dM)dM.textContent=totalMoney;
+  var dR=$('dR');if(dR)dR.textContent=rt;
+}
+function buildAlerts(){
+  var today=new Date();today.setHours(0,0,0,0);
+  var list=[];
+  DB.ops.forEach(function(o){
+    if(o.result!=='انتظار')return;
+    var fd=new Date(o.followUp+'T00:00:00');
+    var diff=Math.ceil((fd-today)/86400000);
+    var fname=o.quick?o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');
+    var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');
+    var lbl=fname+' — '+cname;
+    if(diff<0)list.push({t:'urg',icon:'🚨',title:'فحص متأخر: '+lbl,sub:'مستحق منذ '+fmtD(o.followUp)+' (تأخر '+(-diff)+' يوم)',opId:o.id});
+    else if(diff===0)list.push({t:'urg',icon:'📌',title:'فحص الحمل اليوم: '+lbl,sub:'الموعد اليوم — لا تنسَ',opId:o.id});
+    else if(diff<=3)list.push({t:'warn',icon:'⏰',title:'فحص حمل قريب: '+lbl,sub:'موعد الفحص '+fmtD(o.followUp)+' — بعد '+diff+' يوم',opId:o.id});
+  });
+  $('abadge').textContent=list.filter(function(a){return a.t==='urg';}).length||'0';
+  return list;
+}
+function alertHtml(a){
+  return '<div class="al-item '+a.t+'"><div class="al-icon">'+a.icon+'</div><div class="al-body"><div class="al-title">'+a.title+'</div><div class="al-sub">'+(a.sub||'')+'</div></div>'+(a.opId?'<button class="btn sm" style="flex-shrink:0" onclick="openResultById('+a.opId+')">✏️</button>':'')+'</div>';
+}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+function renderDash(){
+  updateHeader();
+  renderCallRequests();
+  var alerts=buildAlerts();
+  var urgent=alerts.filter(function(a){return a.t==='urg'||a.t==='warn';});
+  $('dashAlerts').innerHTML=urgent.length?urgent.map(alertHtml).join(''):'<div class="empty"><div class="empty-icon">✅</div><h3>لا توجد تنبيهات عاجلة</h3></div>';
+
+  var rc=[].concat(DB.cows).reverse().slice(0,3);
+  var mcb=$('moreCowsBtn');if(mcb)mcb.style.display=DB.cows.length>3?'inline-flex':'none';
+  $('dashCows').innerHTML=rc.length===0?'<div class="empty"><div class="empty-icon">🐄</div><h3>لا توجد أبقار بعد</h3></div>':rc.map(function(c){var f=gF(c.farmerId);var lo=lastCOp(c.id);return'<div class="cmc"><div style="font-size:20px">🐄</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">'+c.name+' <span style="color:var(--text3);font-size:11px">#'+(c.tag||'—')+'</span></div><div style="font-size:11px;color:var(--text2);margin-top:1px">'+c.breed+(f?' | 👨‍🌾 '+f.name:'')+'</div></div>'+(lo?rBadge(lo.result):'<span class="bdg gr">لم تُلقَّح</span>')+'</div>';}).join('');
+
+  var ro=[].concat(DB.ops).reverse().slice(0,3);
+  var mob=$('moreOpsBtn');if(mob)mob.style.display=DB.ops.length>3?'inline-flex':'none';
+  $('dashOps').innerHTML=ro.length===0?'<div class="empty"><div class="empty-icon">💉</div><h3>لا توجد عمليات بعد</h3></div>':'<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>التاريخ</th><th>الثمن</th><th>موعد الفحص</th><th>النتيجة</th></tr></thead><tbody>'+ro.map(function(o){
+    var fname=o.quick?'⚡ '+o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');
+    var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');
+    var late=isOverdue(o.followUp)&&o.result==='انتظار';
+    return'<tr><td style="font-weight:700">'+fname+'</td><td>🐄 '+cname+'</td><td>'+fmtD(o.date)+'</td><td style="color:var(--gold);font-weight:700">'+(o.price||'—')+' د</td><td style="color:'+(late?'var(--red)':'var(--text2)')+'">'+fmtD(o.followUp)+(late?' ⚠️':'')+'</td><td>'+rBadge(o.result)+'</td></tr>';
+  }).join('')+'</tbody></table></div>';
+
+  var fin=DB.ops.filter(function(o){return o.result!=='انتظار';});
+  if(fin.length<2){$('dashStats').innerHTML='<div class="empty" style="padding:18px 0"><div class="empty-icon">📊</div><h3>لا توجد بيانات كافية بعد</h3></div>';return;}
+  var total=DB.ops.length,suc=DB.ops.filter(function(o){return o.result==='حامل';}).length,fail=DB.ops.filter(function(o){return o.result==='فاشل';}).length,wait=DB.ops.filter(function(o){return o.result==='انتظار';}).length,rate=sRate(DB.ops);
+  $('dashStats').innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px"><div><div class="prg-lbl"><span>✅ ناجح</span><span style="color:var(--green)">'+suc+'/'+total+'</span></div><div class="prg-track"><div class="prg-fill" style="width:'+(total?suc/total*100:0)+'%;background:var(--green)"></div></div></div><div><div class="prg-lbl"><span>❌ فاشل</span><span style="color:var(--red)">'+fail+'/'+total+'</span></div><div class="prg-track"><div class="prg-fill" style="width:'+(total?fail/total*100:0)+'%;background:var(--red)"></div></div></div><div><div class="prg-lbl"><span>⏳ انتظار</span><span style="color:var(--gold)">'+wait+'/'+total+'</span></div><div class="prg-track"><div class="prg-fill" style="width:'+(total?wait/total*100:0)+'%;background:var(--gold)"></div></div></div></div><div style="border-top:1px solid var(--border);padding-top:12px;display:flex;align-items:center;gap:11px"><div style="font-size:30px;font-weight:900;color:var(--green)">'+(rate!==null?rate+'%':'—')+'</div><div><div style="font-size:13px;font-weight:700">نسبة النجاح الإجمالية</div><div style="font-size:11px;color:var(--text3);margin-top:2px">من '+fin.length+' عملية مكتملة</div></div></div>';
+}
+
+// ════════════════════════════════════════
+// FARMERS
+// ════════════════════════════════════════
+var COLS=['#1a3d2b','#3d2b1a','#1a2b3d','#2d1a3d','#3d3d1a','#1a3d3d','#3d1a2b','#283d1a'];
+function renderFarmers(){
+  var q=(val('fsearch')||'').trim().toLowerCase();
+  var list=q?DB.farmers.filter(function(f){return f.name.includes(q)||f.region.includes(q);}):DB.farmers;
+  var grid=$('fgrid');
+  if(!list.length){grid.innerHTML=DB.farmers.length===0?'<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👨‍🌾</div><h3>لا يوجد فلاحون بعد</h3><button class="btn" style="margin-top:11px" onclick="openAddFarmer()">➕ إضافة فلاح</button></div>':'<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>لا توجد نتائج</h3></div>';return;}
+  grid.innerHTML=list.map(function(f,i){
+    var fc=fCs(f.id),fo=fOs(f.id);
+    var preg=fc.filter(function(c){var lo=lastCOp(c.id);return lo&&lo.result==='حامل';}).length;
+    var rate=sRate(fo);var col=COLS[i%COLS.length];
+    var rc=rate===null?'var(--text3)':rate>=70?'var(--green)':rate>=50?'var(--gold)':'var(--red)';
+    var bcls=rate===null?'gr':rate>=70?'g':rate>=50?'y':'r';
+    return'<div class="fcard"><div class="fcard-top"><div class="fcard-av" style="background:'+col+'28;border:1.5px solid '+col+'60">👨‍🌾</div><div style="flex:1;min-width:0"><div class="fcard-name">'+f.name+'</div><div class="fcard-sub">📍 '+([f.region,f.village].filter(Boolean).join('، ')||'—')+'</div><div class="fcard-sub">📞 '+(f.phone||'—')+'</div></div><span class="bdg '+bcls+'" style="flex-shrink:0">'+(rate!==null?rate+'%':'جديد')+'</span></div><div class="fcard-stats"><div class="fcs"><div class="fcs-n" style="color:var(--blue)">'+fc.length+'</div><div class="fcs-l">بقرة</div></div><div class="fcs"><div class="fcs-n" style="color:var(--gold)">'+preg+'</div><div class="fcs-l">حامل</div></div><div class="fcs"><div class="fcs-n" style="color:'+rc+'">'+(rate!==null?rate+'%':'—')+'</div><div class="fcs-l">نجاح</div></div></div><div class="fcard-actions"><button class="btn sm" style="flex:1;justify-content:center" onclick="openFarmerDetail('+f.id+')">👁 عرض الضيعة</button><button class="btn out sm" onclick="openEditFarmer('+f.id+')">✏️</button><button class="btn rd sm" onclick="confirmDel(\'farmer\','+f.id+')">🗑</button></div></div>';
+  }).join('');
+}
+function openAddFarmer(){
+  _editFarmerId=null;
+  $('farmerFormTitle').textContent='👨‍🌾 إضافة فلاح جديد';
+  ['ff_name','ff_phone','ff_region','ff_village','ff_notes','ff_username','ff_password','ff_email','ff_mgr_username','ff_mgr_password'].forEach(function(id){setVal(id,'');});
+  openModal('mFarmerForm');
+}
+function openEditFarmer(id){
+  _editFarmerId=id;var f=gF(id);
+  $('farmerFormTitle').textContent='✏️ تعديل بيانات الفلاح';
+  setVal('ff_name',f.name);setVal('ff_phone',f.phone);setVal('ff_region',f.region);
+  setVal('ff_village',f.village);setVal('ff_notes',f.notes);
+  setVal('ff_username',f.username||'');setVal('ff_password',f.password||'');
+  setVal('ff_email',f.email||'');
+  setVal('ff_mgr_username',f.mgrUsername||'');setVal('ff_mgr_password',f.mgrPassword||'');
+  openModal('mFarmerForm');
+}
+function saveFarmer(){
+  var name=val('ff_name').trim();if(!name){showToast('⚠️ الرجاء إدخال اسم الفلاح');return;}
+  var data={
+    name:name,phone:val('ff_phone'),region:val('ff_region'),village:val('ff_village'),notes:val('ff_notes'),
+    username:val('ff_username').trim(),password:val('ff_password').trim(),email:val('ff_email').trim(),
+    mgrUsername:val('ff_mgr_username').trim(),mgrPassword:val('ff_mgr_password').trim()
+  };
+  if(_editFarmerId){Object.assign(gF(_editFarmerId),data);showToast('✅ تم تعديل بيانات الفلاح!');}
+  else{DB.farmers.push(Object.assign({id:DB.fid++},data));showToast('✅ تم إضافة الفلاح!');}
+  closeModal('mFarmerForm');renderAll();
+}
+function openQuickFarmer(){setVal('qf_name','');setVal('qf_phone','');setVal('qf_region','');setVal('qf_username','');setVal('qf_password','');openModal('mQuickFarmer');}
+function saveQuickFarmer(){
+  var name=val('qf_name').trim();if(!name){showToast('⚠️ الرجاء إدخال الاسم');return;}
+  var nf={id:DB.fid++,name:name,phone:val('qf_phone'),region:val('qf_region'),village:'',notes:'',username:val('qf_username').trim(),password:val('qf_password').trim(),email:''};
+  DB.farmers.push(nf);closeModal('mQuickFarmer');fillFarmerSelect();setVal('opFarmer',nf.id);onFarmerChange();showToast('✅ تم إضافة الفلاح وتحديده!');saveDB();
+}
+function openFarmerDetail(fId){
+  _activeFId=fId;var f=gF(fId),fc=fCs(fId),fo=fOs(fId);
+  var preg=fc.filter(function(c){var lo=lastCOp(c.id);return lo&&lo.result==='حامل';}).length;
+  var rate=sRate(fo);
+  $('farmerDetailTitle').textContent='👨‍🌾 '+f.name;
+  var stC=[['🐄',fc.length,'بقرة','var(--blue)'],['🤰',preg,'حامل','var(--gold)'],['💉',fo.length,'عملية','var(--green)'],['📊',rate!==null?rate+'%':'—','نجاح','var(--green)']];
+  var html='<div style="padding:13px 17px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+stC.map(function(s){return'<div style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px;text-align:center"><div style="font-size:17px">'+s[0]+'</div><div style="font-size:19px;font-weight:900;color:'+s[3]+';margin-top:3px">'+s[1]+'</div><div style="font-size:10px;color:var(--text3);margin-top:1px">'+s[2]+'</div></div>';}).join('')+'</div>';
+  html+='<div style="padding:10px 17px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" onclick="openAddCow('+fId+')">➕ إضافة بقرة</button><button class="btn out sm" onclick="prefillFarmer('+fId+');closeModal(\'mFarmerDetail\');go(\'newop\')">💉 تسجيل تلقيح</button><button class="btn out sm" onclick="openEditFarmer('+fId+');closeModal(\'mFarmerDetail\')">✏️ تعديل</button></div>';
+  html+='<div class="dvdr">🐄 قطيع الضيعة — '+fc.length+' بقرة</div><div style="padding:9px 17px 17px">';
+  if(fc.length===0)html+='<div class="empty"><div class="empty-icon">🐄</div><h3>لا توجد أبقار بعد</h3><button class="btn sm" style="margin-top:9px" onclick="openAddCow('+fId+')">➕ إضافة بقرة</button></div>';
+  else html+=fc.map(function(c){var lo=lastCOp(c.id);return'<div class="cmc"><div style="font-size:20px">🐄</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">'+c.name+' <span style="color:var(--text3);font-size:11px">#'+(c.tag||'—')+'</span></div><div style="font-size:11px;color:var(--text2);margin-top:1px">'+c.breed+' | '+cOs(c.id).length+' عملية</div></div><div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end">'+(lo?rBadge(lo.result):'<span class="bdg gr">لم تُلقَّح</span>')+'<button class="btn out sm" onclick="openCowProfile('+c.id+')">👁</button><button class="btn out sm" onclick="openEditCow('+c.id+')">✏️</button><button class="btn rd sm" onclick="confirmDel(\'cow\','+c.id+')">🗑</button></div></div>';}).join('');
+  html+='</div>';
+  $('farmerDetailBody').innerHTML=html;openModal('mFarmerDetail');
+}
+
+// ════════════════════════════════════════
+// COWS
+// ════════════════════════════════════════
+function openAddCow(fId){_editCowId=null;_activeFId=fId;$('cowFormTitle').textContent='🐄 إضافة بقرة جديدة';['cf_name','cf_tag','cf_notes'].forEach(function(id){setVal(id,'');});setVal('cf_dob','');setVal('cf_breed','Holstein');openModal('mCowForm');}
+function openEditCow(id){_editCowId=id;var c=gC(id);$('cowFormTitle').textContent='✏️ تعديل بيانات البقرة';setVal('cf_name',c.name);setVal('cf_tag',c.tag);setVal('cf_breed',c.breed);setVal('cf_dob',c.dob);setVal('cf_notes',c.notes);openModal('mCowForm');}
+function saveCow(){
+  var name=val('cf_name').trim();if(!name){showToast('⚠️ الرجاء إدخال اسم البقرة');return;}
+  var data={name:name,tag:val('cf_tag'),breed:val('cf_breed'),dob:val('cf_dob'),notes:val('cf_notes')};
+  if(_editCowId){Object.assign(gC(_editCowId),data);showToast('✅ تم تعديل بيانات البقرة!');}
+  else{DB.cows.push(Object.assign({id:DB.cid++,farmerId:_activeFId},data));showToast('✅ تمت إضافة البقرة!');}
+  closeModal('mCowForm');if(_activeFId)openFarmerDetail(_activeFId);renderAll();
+}
+function openCowProfile(cId){
+  _activeCId=cId;var c=gC(cId),f=gF(c?c.farmerId:null);var cowOps=cOs(cId);
+  $('cowProfileTitle').textContent='🐄 '+c.name+' (#'+(c.tag||'—')+')';
+  var html='<div style="padding:12px 19px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);gap:9px">'+[['السلالة',c.breed],['المالك',f?f.name:'—'],['التلقيحات',cowOps.length]].map(function(s){return'<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px"><div style="font-size:11px;color:var(--text3)">'+s[0]+'</div><div style="font-weight:700;font-size:13px;margin-top:2px">'+s[1]+'</div></div>';}).join('')+'</div>';
+  html+='<div class="tl"><div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase">سجل التلقيحات</div>';
+  if(!cowOps.length)html+='<div class="empty" style="padding:18px 0"><div class="empty-icon">💉</div><h3>لم تُلقَّح بعد</h3></div>';
+  else html+=cowOps.map(function(o,i){var bg=o.result==='حامل'?'var(--gdim)':o.result==='فاشل'?'var(--reddim)':'var(--goldim)';var cl=o.result==='حامل'?'var(--green)':o.result==='فاشل'?'var(--red)':'var(--gold)';return'<div class="tl-item"><div class="tl-dot" style="background:'+bg+';color:'+cl+'">'+(i+1)+'</div><div class="tl-body"><div class="tl-t">'+o.semen+'</div><div class="tl-d">التلقيح: '+fmtD(o.date)+' | الفحص: '+fmtD(o.followUp)+'</div><div class="tl-n">'+rBadge(o.result)+(o.notes?' '+o.notes:'')+'</div></div></div>';}).join('');
+  html+='</div>';$('cowProfileBody').innerHTML=html;openModal('mCowProfile');
+}
+
+// ════════════════════════════════════════
+// NEW OP
+// ════════════════════════════════════════
+function fillFarmerSelect(){
+  var sel=$('opFarmer'),cur=sel.value;
+  sel.innerHTML='<option value="">— اختر الفلاح —</option>'+DB.farmers.map(function(f){return'<option value="'+f.id+'">'+f.name+(f.region?' ('+f.region+')':'')+'</option>';}).join('');
+  if(cur)sel.value=cur;
+}
+function onFarmerChange(){
+  var fId=parseInt(val('opFarmer'))||0;var sel=$('opCow');
+  if(!fId){sel.innerHTML='<option value="">— اختر الفلاح أولاً —</option>';return;}
+  var fc=fCs(fId);
+  sel.innerHTML=fc.length?fc.map(function(c){return'<option value="'+c.id+'">🐄 '+c.name+(c.tag?' (#'+c.tag+')':'')+' — '+c.breed+'</option>';}).join(''):'<option value="">لا توجد أبقار — أضف من قسم الفلاحين</option>';
+}
+function prefillFarmer(fId){fillFarmerSelect();setVal('opFarmer',fId);onFarmerChange();}
+function calcFollowUp(){
+  var d=val('opDate');
+  if(d){var dt=new Date(d+'T00:00:00');dt.setDate(dt.getDate()+21);setVal('opFollowUp',dt.toISOString().slice(0,10));}
+}
+function calcQuickFollowUp(){
+  var d=val('qopDate');
+  if(d){var dt=new Date(d+'T00:00:00');dt.setDate(dt.getDate()+21);setVal('qopFollowUp',dt.toISOString().slice(0,10));}
+}
+function getLocation(){
+  var st=$('locationStatus');
+  if(!navigator.geolocation){if(st)st.textContent='❌ المتصفح لا يدعم GPS';return;}
+  if(st){st.textContent='⏳ جاري تحديد الموقع...';}
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var lat=pos.coords.latitude.toFixed(5);
+      var lng=pos.coords.longitude.toFixed(5);
+      var loc=lat+', '+lng;
+      setVal('qopLocation',loc);
+      if(st)st.textContent='✅ تم تحديد الموقع | <a href="https://maps.google.com/?q='+lat+','+lng+'" target="_blank" style="color:var(--green)">عرض على الخريطة</a>';
+      if(st)st.innerHTML='✅ تم | <a href="https://maps.google.com/?q='+lat+','+lng+'" target="_blank" style="color:var(--green)">عرض على الخريطة 🗺️</a>';
+    },
+    function(err){
+      if(st)st.textContent='❌ فشل تحديد الموقع — تأكد من تفعيل GPS';
+    },
+    {enableHighAccuracy:true,timeout:10000}
+  );
+}
+function clearQuickOpForm(){
+  ['qopFarmer','qopCow','qopBreed','qopBull','qopNotes','qopLocation','qopFollowUp'].forEach(function(id){setVal(id,'');});
+  setVal('qopPrice','200');
+  var d=new Date();setVal('qopDate',d.toISOString().slice(0,10));
+  calcQuickFollowUp();
+  var st=$('locationStatus');if(st)st.innerHTML='';
+}
+function saveQuickOp(){
+  var farmerName=(val('qopFarmer')||'').trim();
+  var cowName=(val('qopCow')||'').trim();
+  var date=val('qopDate');
+  if(!farmerName||!cowName||!date){showToast('⚠️ الرجاء إدخال اسم الفلاح والبقرة والتاريخ');return;}
+  var breedName=(val('qopBreed')||'').trim();
+  var bullName=(val('qopBull')||'').trim();
+  var semenLabel=breedName&&bullName?bullName+' ('+breedName+')':breedName||bullName||'غير محدد';
+  // حفظ في بنك المني إذا وُجد
+  if(breedName&&bullName){
+    var br=DB.breeds.find(function(b){return b.name.toLowerCase()===breedName.toLowerCase();});
+    if(!br){br={id:DB.brid++,name:breedName,desc:''};DB.breeds.push(br);}
+    var bl=DB.bulls.find(function(b){return b.breedId===br.id&&b.name.toLowerCase()===bullName.toLowerCase();});
+    if(!bl){DB.bulls.push({id:DB.blid++,breedId:br.id,name:bullName,code:'',doses:0,motility:'',date:'',temp:'-196°C (نيتروجين سائل)',notes:''});}
+  }
+  DB.ops.push({
+    id:DB.oid++,
+    farmerId:0, cowId:0,
+    farmerName:farmerName,
+    cowName:cowName,
+    date:date,
+    semen:semenLabel,
+    stage:'وسطى (6–18 ساعة) — مثالية',
+    followUp:val('qopFollowUp'),
+    notes:val('qopNotes'),
+    location:val('qopLocation'),
+    price:parseInt(val('qopPrice'))||200,
+    result:'انتظار',
+    quick:true
+  });
+  showToast('⚡ تم تسجيل التلقيح السريع!');
+  clearQuickOpForm();
+  renderAll();
+}
+
+function onBreedInput(){
+  var v=(val('opBreed')||'').trim().toLowerCase();var box=$('breedAC');var hint=$('bullHint');
+  if(!v){box.style.display='none';return;}
+  var m=DB.breeds.filter(function(b){return b.name.toLowerCase().startsWith(v);}).slice(0,5);
+  if(m.length){box.innerHTML=m.map(function(b){return'<div class="ac-item" onclick="pickBreed(\''+b.name+'\')">🧬 '+b.name+'</div>';}).join('');box.style.display='block';}
+  else box.style.display='none';
+  var exists=DB.breeds.find(function(b){return b.name.toLowerCase()===v;});
+  if(hint)hint.style.display=(!exists&&v.length>1)?'block':'none';
+  onBullInput();
+}
+function pickBreed(name){setVal('opBreed',name);$('breedAC').style.display='none';var h=$('bullHint');if(h)h.style.display='none';onBullInput();}
+function onBullInput(){
+  var brName=(val('opBreed')||'').trim().toLowerCase();var v=(val('opBull')||'').trim().toLowerCase();var box=$('bullAC');
+  if(!v){box.style.display='none';return;}
+  var br=DB.breeds.find(function(b){return b.name.toLowerCase()===brName;});
+  if(!br){box.style.display='none';return;}
+  var m=brBulls(br.id).filter(function(b){return b.name.toLowerCase().startsWith(v);}).slice(0,5);
+  if(m.length){box.innerHTML=m.map(function(b){return'<div class="ac-item" onclick="pickBull(\''+b.name+'\')">🐂 '+b.name+(b.code?' ('+b.code+')':'')+'</div>';}).join('');box.style.display='block';}
+  else box.style.display='none';
+}
+function pickBull(name){setVal('opBull',name);$('bullAC').style.display='none';}
+function clearOpForm(){
+  setVal('opFarmer','');setVal('opBreed','');setVal('opBull','');setVal('opNotes','');setVal('opFollowUp','');
+  $('opCow').innerHTML='<option value="">— اختر الفلاح أولاً —</option>';
+  $('breedAC').style.display='none';$('bullAC').style.display='none';
+  var h=$('bullHint');if(h)h.style.display='none';
+}
+function saveOp(){
+  var fId=parseInt(val('opFarmer'))||0;var cId=parseInt(val('opCow'))||0;
+  var date=val('opDate');
+  if(!fId||!cId||!date){showToast('⚠️ الرجاء اختيار الفلاح والبقرة والتاريخ');return;}
+  var breedName=(val('opBreed')||'').trim();var bullName=(val('opBull')||'').trim();
+  var semenLabel = breedName&&bullName ? bullName+' ('+breedName+')' : breedName||bullName||'غير محدد';
+  if(breedName&&bullName){
+    var br=DB.breeds.find(function(b){return b.name.toLowerCase()===breedName.toLowerCase();});
+    if(!br){br={id:DB.brid++,name:breedName,desc:''};DB.breeds.push(br);}
+    var bl=DB.bulls.find(function(b){return b.breedId===br.id&&b.name.toLowerCase()===bullName.toLowerCase();});
+    if(!bl){bl={id:DB.blid++,breedId:br.id,name:bullName,code:'',doses:0,motility:'',date:'',temp:'-196°C (نيتروجين سائل)',notes:''};DB.bulls.push(bl);}
+  }
+  DB.ops.push({id:DB.oid++,farmerId:fId,cowId:cId,date:date,semen:semenLabel,stage:val('opStage'),temp:val('opTemp'),hormone:val('opHormone'),followUp:val('opFollowUp'),notes:val('opNotes'),price:parseInt(val('opPrice'))||150,result:'انتظار'});
+  showToast('✅ تم تسجيل التلقيح!');clearOpForm();renderAll();
+}
+
+// ════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════
+function renderHistory(){
+  var q=(val('hsearch')||'').toLowerCase();var filt=val('hfilter')||'';
+  var list=[].concat(DB.ops).reverse();
+  if(q)list=list.filter(function(o){
+    var fname=o.quick?o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'');
+    var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'');
+    return fname.includes(q)||cname.includes(q)||o.date.includes(q);
+  });
+  if(filt)list=list.filter(function(o){return o.result===filt;});
+  var wrap=$('histWrap');
+  if(!list.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">📋</div><h3>لا توجد سجلات</h3></div>';return;}
+  wrap.innerHTML='<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>التاريخ</th><th>الثور</th><th>الثمن</th><th>موعد الفحص</th><th>النتيجة</th><th></th></tr></thead><tbody>'+
+  list.map(function(o){
+    var fname=o.quick?'<span class="bdg y">⚡</span> '+o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');
+    var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');
+    var ctag=!o.quick&&gC(o.cowId)&&gC(o.cowId).tag?' <span style="color:var(--text3);font-size:11px">#'+gC(o.cowId).tag+'</span>':'';
+    var late=isOverdue(o.followUp)&&o.result==='انتظار';
+    var locationBtn=o.location?'<a href="https://maps.google.com/?q='+o.location+'" target="_blank" style="font-size:11px;color:var(--blue)">🗺️</a>':'';
+    return'<tr>'+
+      '<td style="font-weight:700;white-space:nowrap">'+fname+'</td>'+
+      '<td>🐄 '+cname+ctag+'</td>'+
+      '<td style="color:var(--text2)">'+fmtD(o.date)+'</td>'+
+      '<td style="font-size:12px;color:var(--text2)">'+o.semen+'</td>'+
+      '<td style="color:var(--gold);font-weight:700">'+(o.price||'—')+' د</td>'+
+      '<td style="color:'+(late?'var(--red)':'var(--text2)')+'">'+fmtD(o.followUp)+(late?' ⚠️':'')+' '+locationBtn+'</td>'+
+      '<td>'+rBadge(o.result)+'</td>'+
+      '<td><button class="btn out sm" onclick="openResultById('+o.id+')">✏️</button></td>'+
+    '</tr>';
+  }).join('')+'</tbody></table></div>';
+}
+
+// ════════════════════════════════════════
+// ALERTS PAGE
+// ════════════════════════════════════════
+function renderAlertsPage(){
+  var list=buildAlerts();
+  $('alertsWrap').innerHTML=list.length?list.map(alertHtml).join(''):'<div class="empty"><div class="empty-icon">✅</div><h3>لا توجد تنبيهات</h3><p>كل شيء على ما يرام</p></div>';
+}
+
+// ════════════════════════════════════════
+// UPDATE RESULT
+// ════════════════════════════════════════
+function openUpdateResult(){
+  if(!_activeCId)return;
+  var ops=cOs(_activeCId);var sel=$('res_op');
+  sel.innerHTML=ops.length?ops.map(function(o){return'<option value="'+o.id+'">'+fmtD(o.date)+' — '+o.semen+' ('+o.result+')</option>';}).join(''):'<option value="">لا توجد عمليات</option>';
+  if(ops.length){_editResOpId=ops[ops.length-1].id;sel.value=_editResOpId;setVal('res_result',ops[ops.length-1].result);}
+  setVal('res_note','');openModal('mResult');
+}
+function openResultById(opId){
+  var o=gO(opId);if(!o)return;_editResOpId=opId;
+  $('res_op').innerHTML='<option value="'+o.id+'">'+fmtD(o.date)+' — '+o.semen+'</option>';
+  setVal('res_result',o.result);setVal('res_note',o.notes||'');openModal('mResult');
+}
+function saveResult(){
+  var selId=parseInt(val('res_op'))||_editResOpId;var o=gO(selId);if(!o)return;
+  o.result=val('res_result');var note=val('res_note');if(note)o.notes=note;
+  closeModal('mResult');showToast('✅ تم تحديث النتيجة!');
+  if(_activeCId)openCowProfile(_activeCId);renderAll();
+}
+
+// ════════════════════════════════════════
+// SEMEN BANK
+// ════════════════════════════════════════
+function renderSemen(){
+  var totalD=DB.bulls.reduce(function(s,b){return s+parseInt(b.doses||0);},0);
+  var low=DB.bulls.filter(function(b){return parseInt(b.doses||0)<=5;}).length;
+  $('semenStats').innerHTML='<div class="sc"><div class="sc-icon">🧬</div><div class="sc-num" style="color:var(--blue)">'+DB.breeds.length+'</div><div class="sc-lbl">صنف</div></div><div class="sc"><div class="sc-icon">🐂</div><div class="sc-num" style="color:var(--green)">'+DB.bulls.length+'</div><div class="sc-lbl">عجل</div></div><div class="sc"><div class="sc-icon">💊</div><div class="sc-num" style="color:var(--gold)">'+totalD+'</div><div class="sc-lbl">جرعة</div></div><div class="sc"><div class="sc-icon">⚠️</div><div class="sc-num" style="color:var(--red)">'+low+'</div><div class="sc-lbl">مخزون منخفض</div></div>';
+  if(!DB.breeds.length){$('breedsWrap').innerHTML='<div class="panel"><div class="empty"><div class="empty-icon">🧬</div><h3>لا توجد أصناف بعد</h3><p>اضغط "إضافة صنف" أو سجّل تلقيحاً وسيُضاف تلقائياً</p></div></div>';return;}
+  $('breedsWrap').innerHTML=DB.breeds.map(function(br){
+    var bls=brBulls(br.id);var td=bls.reduce(function(s,b){return s+parseInt(b.doses||0);},0);
+    var html='<div class="panel" style="margin-bottom:13px"><div class="ph"><div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0"><div style="width:36px;height:36px;background:var(--gdim);border:1.5px solid var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🧬</div><div><div style="font-size:14px;font-weight:700">'+br.name+'</div>'+(br.desc?'<div style="font-size:11px;color:var(--text3)">'+br.desc+'</div>':'')+'</div><div style="display:flex;gap:5px;margin-right:auto;flex-wrap:wrap"><span class="bdg b">'+bls.length+' عجل</span><span class="bdg '+(td<=10?'r':td<=20?'y':'g')+'">'+td+' جرعة</span></div></div><div style="display:flex;gap:5px;flex-shrink:0"><button class="btn sm" onclick="openAddBull('+br.id+')">➕ عجل</button><button class="btn out sm" onclick="openEditBreed('+br.id+')">✏️</button><button class="btn rd sm" onclick="confirmDel(\'breed\','+br.id+')">🗑</button></div></div>';
+    if(!bls.length)html+='<div class="empty" style="padding:22px"><div class="empty-icon">🐂</div><h3>لا توجد عجول بعد</h3><button class="btn sm" style="margin-top:9px" onclick="openAddBull('+br.id+')">➕ إضافة عجل</button></div>';
+    else html+='<div style="overflow-x:auto"><table><thead><tr><th>اسم العجل</th><th>الكود</th><th>الجرعات</th><th>الحركة%</th><th>تاريخ التجميع</th><th>الحالة</th><th></th></tr></thead><tbody>'+bls.map(function(b){var doses=parseInt(b.doses||0);var dc=doses<=3?'var(--red)':doses<=5?'var(--gold)':'var(--green)';var mc=parseInt(b.motility||0)>=80?'var(--green)':parseInt(b.motility||0)>=65?'var(--gold)':'var(--red)';var sb=doses===0?'<span class="bdg r">نفد</span>':doses<=5?'<span class="bdg y">⚠️ قليل</span>':'<span class="bdg g">متاح</span>';return'<tr><td style="font-weight:700">🐂 '+b.name+'</td><td><span style="background:var(--gdim);border:1px solid var(--border);padding:2px 8px;border-radius:6px;font-size:11px">'+(b.code||'—')+'</span></td><td style="font-weight:700;color:'+dc+'">'+doses+'</td><td style="color:'+mc+';font-weight:700">'+(b.motility?b.motility+'%':'—')+'</td><td style="color:var(--text2)">'+(b.date?fmtD(b.date):'—')+'</td><td>'+sb+'</td><td style="white-space:nowrap"><button class="btn out sm" onclick="openEditBull('+b.id+')">✏️</button> <button class="btn rd sm" onclick="confirmDel(\'bull\','+b.id+')">🗑</button></td></tr>';}).join('')+'</tbody></table></div>';
+    html+='</div>';return html;
+  }).join('');
+}
+function openAddBreed(){_editBreedId=null;$('breedFormTitle').textContent='🧬 إضافة صنف جديد';setVal('bf_name','');setVal('bf_desc','');openModal('mBreedForm');}
+function openEditBreed(id){_editBreedId=id;var br=gBr(id);$('breedFormTitle').textContent='✏️ تعديل الصنف';setVal('bf_name',br.name);setVal('bf_desc',br.desc);openModal('mBreedForm');}
+function saveBreed(){
+  var name=(val('bf_name')||'').trim();if(!name){showToast('⚠️ الرجاء إدخال اسم الصنف');return;}
+  if(_editBreedId){Object.assign(gBr(_editBreedId),{name:name,desc:val('bf_desc')});showToast('✅ تم تعديل الصنف!');}
+  else{DB.breeds.push({id:DB.brid++,name:name,desc:val('bf_desc')});showToast('✅ تم إضافة الصنف!');}
+  closeModal('mBreedForm');renderSemen();saveDB();
+}
+function openAddBull(brId){_editBullId=null;_editBullBreedId=brId;$('bullFormTitle').textContent='🐂 إضافة عجل جديد';['blf_name','blf_code','blf_doses','blf_motility','blf_notes'].forEach(function(id){setVal(id,'');});setVal('blf_date','');setVal('blf_temp','-196°C (نيتروجين سائل)');openModal('mBullForm');}
+function openEditBull(id){_editBullId=id;var b=gBl(id);$('bullFormTitle').textContent='✏️ تعديل بيانات العجل';setVal('blf_name',b.name);setVal('blf_code',b.code);setVal('blf_doses',b.doses);setVal('blf_motility',b.motility);setVal('blf_date',b.date);setVal('blf_temp',b.temp);setVal('blf_notes',b.notes);openModal('mBullForm');}
+function saveBull(){
+  var name=(val('blf_name')||'').trim();var doses=val('blf_doses');
+  if(!name||doses===''){showToast('⚠️ الرجاء إدخال اسم العجل وعدد الجرعات');return;}
+  var data={name:name,code:val('blf_code'),doses:parseInt(doses)||0,motility:val('blf_motility'),date:val('blf_date'),temp:val('blf_temp'),notes:val('blf_notes')};
+  if(_editBullId){Object.assign(gBl(_editBullId),data);showToast('✅ تم تعديل بيانات العجل!');}
+  else{DB.bulls.push(Object.assign({id:DB.blid++,breedId:_editBullBreedId},data));showToast('✅ تمت إضافة العجل!');}
+  closeModal('mBullForm');renderSemen();saveDB();
+}
+
+// ════════════════════════════════════════
+// DELETE
+// ════════════════════════════════════════
+function confirmDel(type,id){
+  _pendingDel={type:type,id:id};
+  var icon,title,msg;
+  if(type==='farmer'){var f=gF(id);icon='👨‍🌾';title='حذف الفلاح: '+(f?f.name:'');msg='سيتم حذف '+fCs(id).length+' بقرة و'+fOs(id).length+' عملية مرتبطة.';}
+  else if(type==='cow'){var c=gC(id);icon='🐄';title='حذف البقرة: '+(c?c.name:'');msg='سيتم حذف '+cOs(id).length+' عملية تلقيح مرتبطة.';}
+  else if(type==='breed'){var br=gBr(id);icon='🧬';title='حذف الصنف: '+(br?br.name:'');msg='سيتم حذف '+brBulls(id).length+' عجل مرتبط.';}
+  else if(type==='bull'){var bl=gBl(id);icon='🐂';title='حذف العجل: '+(bl?bl.name:'');msg='سيتم حذف هذا العجل من البنك.';}
+  $('confIcon').textContent=icon;$('confTitle').textContent=title;$('confMsg').textContent=msg+' هذا الإجراء لا يمكن التراجع عنه.';$('confOk').onclick=doDelete;openModal('mConfirm');
+}
+function doDelete(){
+  if(!_pendingDel)return;var type=_pendingDel.type,id=_pendingDel.id;
+  if(type==='farmer'){var fcIds=fCs(id).map(function(c){return c.id;});DB.ops=DB.ops.filter(function(o){return o.farmerId!==id&&fcIds.indexOf(o.cowId)<0;});DB.cows=DB.cows.filter(function(c){return c.farmerId!==id;});DB.farmers=DB.farmers.filter(function(f){return f.id!==id;});showToast('🗑 تم حذف الفلاح وكل بياناته');closeModal('mFarmerDetail');}
+  else if(type==='cow'){DB.ops=DB.ops.filter(function(o){return o.cowId!==id;});DB.cows=DB.cows.filter(function(c){return c.id!==id;});showToast('🗑 تم حذف البقرة');if(_activeFId)openFarmerDetail(_activeFId);}
+  else if(type==='breed'){DB.bulls=DB.bulls.filter(function(b){return b.breedId!==id;});DB.breeds=DB.breeds.filter(function(b){return b.id!==id;});showToast('🗑 تم حذف الصنف وعجوله');}
+  else if(type==='bull'){DB.bulls=DB.bulls.filter(function(b){return b.id!==id;});showToast('🗑 تم حذف العجل');}
+  closeModal('mConfirm');_pendingDel=null;renderAll();
+}
+
+// ════════════════════════════════════════
+// FARMER VIEW
+// ════════════════════════════════════════
+function renderFarmerView(fId){
+  var f=gF(fId);if(!f)return;
+  $('fvName').textContent=f.name;
+  var fc=fCs(fId),fo=fOs(fId);
+  var preg=fc.filter(function(c){var lo=lastCOp(c.id);return lo&&lo.result==='حامل';}).length;
+  var rate=sRate(fo);
+  $('fvStats').innerHTML='<div class="sc"><div class="sc-icon">🐄</div><div class="sc-num" style="color:var(--blue)">'+fc.length+'</div><div class="sc-lbl">أبقاري</div></div><div class="sc"><div class="sc-icon">🤰</div><div class="sc-num" style="color:var(--gold)">'+preg+'</div><div class="sc-lbl">حوامل</div></div><div class="sc"><div class="sc-icon">💉</div><div class="sc-num" style="color:var(--green)">'+fo.length+'</div><div class="sc-lbl">تلقيحات</div></div><div class="sc"><div class="sc-icon">📊</div><div class="sc-num" style="color:var(--green)">'+(rate!==null?rate+'%':'—')+'</div><div class="sc-lbl">نجاح</div></div>';
+
+  var today=new Date();today.setHours(0,0,0,0);
+  var myAlerts=fo.filter(function(o){return o.result==='انتظار'&&o.followUp;}).map(function(o){
+    var c=gC(o.cowId);var fd=new Date(o.followUp+'T00:00:00');var diff=Math.ceil((fd-today)/86400000);
+    if(diff<0)return{t:'urg',icon:'🚨',title:'فحص متأخر: '+(c?c.name:'—'),sub:'مستحق منذ '+fmtD(o.followUp)};
+    if(diff===0)return{t:'urg',icon:'📌',title:'فحص اليوم: '+(c?c.name:'—'),sub:'لا تنسَ الفحص اليوم'};
+    if(diff<=3)return{t:'warn',icon:'⏰',title:'فحص قريب: '+(c?c.name:'—'),sub:'بعد '+diff+' يوم — '+fmtD(o.followUp)};
+    return null;
+  }).filter(Boolean);
+  $('fvAlerts').innerHTML=myAlerts.length?myAlerts.map(function(a){return'<div class="al-item '+a.t+'"><div class="al-icon">'+a.icon+'</div><div class="al-body"><div class="al-title">'+a.title+'</div><div class="al-sub">'+a.sub+'</div></div></div>';}).join(''):'<div class="empty"><div class="empty-icon">✅</div><h3>لا توجد تنبيهات</h3><p>كل شيء على ما يرام</p></div>';
+
+  function cowCard(c){var lo=lastCOp(c.id);return'<div class="cmc"><div style="font-size:20px">🐄</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">'+c.name+' <span style="color:var(--text3);font-size:11px">#'+(c.tag||'—')+'</span></div><div style="font-size:11px;color:var(--text2);margin-top:1px">'+c.breed+' | '+cOs(c.id).length+' عملية</div></div>'+(lo?rBadge(lo.result):'<span class="bdg gr">لم تُلقَّح</span>')+'</div>';}
+  var fvmcb=$('fvMoreCowsBtn');if(fvmcb)fvmcb.style.display=fc.length>3?'inline-flex':'none';
+  $('fvCowsList').innerHTML=fc.length===0?'<div class="empty"><div class="empty-icon">🐄</div><h3>لا توجد أبقار بعد</h3></div>':'<div style="padding:8px 15px">'+fc.slice(0,3).map(cowCard).join('')+'</div>';
+  var fvce=$('fvCowsExtra');if(fvce)fvce.innerHTML=fc.length>3?'<div style="padding:0 15px 8px">'+fc.slice(3).map(cowCard).join('')+'</div>':'';
+
+  function opRow(o){var c=gC(o.cowId);var late=isOverdue(o.followUp)&&o.result==='انتظار';return'<tr><td style="font-weight:700">🐄 '+(c?c.name:'—')+'</td><td>'+fmtD(o.date)+'</td><td style="font-size:12px;color:var(--text2)">'+o.semen+'</td><td style="color:'+(late?'var(--red)':'var(--text2)')+'">'+fmtD(o.followUp)+(late?' ⚠️':'')+'</td><td>'+rBadge(o.result)+'</td></tr>';}
+  var thead='<div style="overflow-x:auto"><table><thead><tr><th>البقرة</th><th>التاريخ</th><th>الثور</th><th>موعد الفحص</th><th>النتيجة</th></tr></thead><tbody>';
+  var foRev=[].concat(fo).reverse();
+  var fvmob=$('fvMoreOpsBtn');if(fvmob)fvmob.style.display=fo.length>3?'inline-flex':'none';
+  $('fvOpsList').innerHTML=fo.length===0?'<div class="empty"><div class="empty-icon">💉</div><h3>لا توجد عمليات بعد</h3></div>':thead+foRev.slice(0,3).map(opRow).join('')+'</tbody></table></div>';
+  var fvoe=$('fvOpsExtra');if(fvoe)fvoe.innerHTML=fo.length>3?thead+foRev.slice(3).map(opRow).join('')+'</tbody></table></div>':'';
+}
+
+// ════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════
+function saveEmailSettings(){
+  var email=(val('set_email')||'').trim();if(!email){showToast('⚠️ الرجاء إدخال الإيميل');return;}
+  DB.notifyEmail=email;saveDB();showToast('✅ تم حفظ الإيميل: '+email);
+}
+function changeAdminPass(){
+  var oldp=val('set_oldpass').trim(),newp=val('set_newpass').trim(),conf=val('set_confpass').trim();
+  if(oldp!==DB.adminPass){showToast('❌ كلمة المرور الحالية غلط!');return;}
+  if(!newp){showToast('⚠️ أدخل كلمة المرور الجديدة');return;}
+  if(newp!==conf){showToast('❌ كلمة المرور الجديدة غير متطابقة!');return;}
+  DB.adminPass=newp;saveDB();setVal('set_oldpass','');setVal('set_newpass','');setVal('set_confpass','');showToast('✅ تم تغيير كلمة المرور!');
+}
+function changeAdminUser(){
+  var newu=val('set_newuser').trim(),pass=val('set_userpass').trim();
+  if(pass!==DB.adminPass){showToast('❌ كلمة المرور غلط!');return;}
+  if(!newu){showToast('⚠️ أدخل اسم المستخدم الجديد');return;}
+  DB.adminUser=newu;saveDB();setVal('set_newuser','');setVal('set_userpass','');var el=$('setInfoUser');if(el)el.textContent=DB.adminUser;showToast('✅ تم تغيير اسم المستخدم!');
+}
+
+// ════════════════════════════════════════
+// EMAILJS
+// ════════════════════════════════════════
+var EJS={serviceId:'service_6lblqim',templateId:'template_ry87x0d',publicKey:'Gc3ksloAGX2VNMhjb'};
+function initEmailJS(){try{emailjs.init(EJS.publicKey);}catch(e){}}
+function sendAlertEmail(toEmail,alertLines){
+  var st=$('emailStatus');
+  if(st){st.style.display='block';st.style.background='var(--gdim)';st.style.color='var(--green)';st.textContent='⏳ جاري الإرسال...';}
+  emailjs.send(EJS.serviceId,EJS.templateId,{alerts:alertLines.join('\n'),date:new Date().toLocaleDateString('ar-DZ'),to_email:toEmail}).then(function(){showToast('✅ تم إرسال الإيميل!');if(st)st.textContent='✅ تم الإرسال إلى '+toEmail;}).catch(function(e){showToast('❌ فشل الإرسال');if(st){st.style.background='var(--reddim)';st.style.color='var(--red)';st.textContent='❌ فشل الإرسال';}});
+}
+function sendTestEmail(){var email=(val('set_email')||DB.notifyEmail||'').trim();if(!email){showToast('⚠️ أدخل الإيميل أولاً');return;}sendAlertEmail(email,['🧪 هذا إيميل تجريبي من نظام الملقّح ✅']);}
+function checkAndSendDailyEmail(){
+  var today=new Date().toDateString();
+  if(DB.lastEmailDate===today)return;
+  DB.lastEmailDate=today;saveDB();
+  var todayD=new Date();todayD.setHours(0,0,0,0);
+  if(DB.notifyEmail){
+    var allAlerts=[];
+    DB.ops.forEach(function(o){if(o.result!=='انتظار')return;var fd=new Date(o.followUp+'T00:00:00');var diff=Math.ceil((fd-todayD)/86400000);var f=gF(o.farmerId),c=gC(o.cowId);var lbl=(f?f.name:'—')+' — '+(c?c.name:'—');if(diff<0)allAlerts.push('🚨 فحص متأخر: '+lbl+' (تأخر '+(-diff)+' يوم)');else if(diff===0)allAlerts.push('📌 فحص اليوم: '+lbl);else if(diff<=3)allAlerts.push('⏰ فحص قريب: '+lbl+' (بعد '+diff+' يوم)');});
+    if(allAlerts.length)sendAlertEmail(DB.notifyEmail,allAlerts);
+  }
+  DB.farmers.forEach(function(farmer){
+    if(!farmer.email)return;
+    var farmerAlerts=[];
+    fOs(farmer.id).forEach(function(o){if(o.result!=='انتظار')return;var fd=new Date(o.followUp+'T00:00:00');var diff=Math.ceil((fd-todayD)/86400000);var c=gC(o.cowId);var name=c?c.name:'—';if(diff<0)farmerAlerts.push('🚨 فحص متأخر: بقرة '+name+' (تأخر '+(-diff)+' يوم)');else if(diff===0)farmerAlerts.push('📌 فحص اليوم: بقرة '+name);else if(diff<=3)farmerAlerts.push('⏰ فحص قريب: بقرة '+name+' (بعد '+diff+' يوم)');});
+    if(farmerAlerts.length)setTimeout(function(){sendAlertEmail(farmer.email,farmerAlerts);},2000);
+  });
+}
+
+// ════════════════════════════════════════
+// FEATURES TOGGLE — تفعيل/تعطيل المميزات
+// ════════════════════════════════════════
+var FEATURES_LIST = [
+  {key:'finance',    icon:'💰', label:'قسم المالية',           desc:'تتبع الأرباح والدفعات'},
+  {key:'semen',      icon:'🧪', label:'بنك المني',              desc:'إدارة الأصناف والعجول'},
+  {key:'quickOp',    icon:'⚡', label:'التلقيح السريع',          desc:'تلقيح بدون تسجيل مسبق'},
+  {key:'birth',      icon:'🐣', label:'تسجيل الولادات',          desc:'أول تلقيح بعد 45 يوم'},
+  {key:'callBtn',    icon:'📞', label:'زر استدعاء الملقّح',      desc:'الفلاح يستدعيك مع موقعه'},
+  {key:'biometric',  icon:'👆', label:'تسجيل الدخول بالبصمة',   desc:'دخول سريع ببصمة الإصبع'},
+  {key:'emailAlerts',icon:'📧', label:'إيميل التنبيهات التلقائي',desc:'إيميل يومي بمواعيد الفحص'},
+  {key:'manager',    icon:'👨‍💼', label:'حساب المسؤل للفلاح',     desc:'حساب ثانٍ لتسجيل التلقيح'},
+];
+
+function getFeat(key){
+  if(!DB.features) DB.features={};
+  return DB.features[key]!==false; // افتراضياً مفعّل
+}
+
+function renderFeaturesPanel(){
+  var html = FEATURES_LIST.map(function(f){
+    var on = getFeat(f.key);
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:13px 19px;border-bottom:1px solid var(--border)">'+
+      '<div style="display:flex;align-items:center;gap:11px">'+
+        '<div style="font-size:22px;width:36px;text-align:center">'+f.icon+'</div>'+
+        '<div>'+
+          '<div style="font-size:14px;font-weight:700;color:'+(on?'var(--text)':'var(--text3)')+'">'+f.label+'</div>'+
+          '<div style="font-size:11px;color:var(--text3);margin-top:1px">'+f.desc+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">'+
+        '<input type="checkbox" id="feat_'+f.key+'" '+(on?'checked':'')+' style="opacity:0;width:0;height:0" onchange="previewFeature(\''+f.key+'\',this.checked)">'+
+        '<span id="featSlider_'+f.key+'" style="position:absolute;inset:0;border-radius:26px;transition:.3s;background:'+(on?'var(--green)':'rgba(255,255,255,0.15)')+';"><span style="position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;transition:.3s;'+(on?'right:3px':'left:3px')+'"></span></span>'+
+      '</label>'+
+    '</div>';
+  }).join('');
+  var panel=$('featuresPanel');
+  if(panel) panel.innerHTML=html;
+}
+
+function previewFeature(key, on){
+  var slider=$('featSlider_'+key);
+  if(slider){
+    slider.style.background=on?'var(--green)':'rgba(255,255,255,0.15)';
+    var knob=slider.querySelector('span');
+    if(knob) knob.style[on?'right':'left']='3px', knob.style[on?'left':'right']='';
+  }
+}
+
+function saveFeatures(){
+  if(!DB.features) DB.features={};
+  FEATURES_LIST.forEach(function(f){
+    var cb=document.getElementById('feat_'+f.key);
+    if(cb) DB.features[f.key]=cb.checked;
+  });
+  saveDB();
+  applyFeatures();
+  showToast('✅ تم حفظ إعدادات المميزات!');
+}
+
+function applyFeatures(){
+  // المالية
+  var finNav=document.querySelector('[data-s="finance"]');
+  if(finNav) finNav.style.display=getFeat('finance')?'':'none';
+
+  // بنك المني
+  var semenNav=document.querySelector('[data-s="semen"]');
+  if(semenNav) semenNav.style.display=getFeat('semen')?'':'none';
+
+  // زر استدعاء في واجهة الفلاح
+  var callBtns=document.querySelectorAll('[onclick="callInseminator()"]');
+  callBtns.forEach(function(b){b.style.display=getFeat('callBtn')?'':'none';});
+
+  // البصمة
+  var bioSection=$('biometricSection');
+  if(bioSection&&!getFeat('biometric')) bioSection.style.display='none';
+}
+
+
+function callInseminator(){
+  if(!_user||!_user.farmerId){showToast('❌ خطأ في تحديد الفلاح');return;}
+  var f=gF(_user.farmerId);if(!f)return;
+
+  // تحديد الموقع أولاً
+  if(navigator.geolocation){
+    showToast('⏳ جاري تحديد موقعك...');
+    navigator.geolocation.getCurrentPosition(
+      function(pos){
+        var lat=pos.coords.latitude.toFixed(5);
+        var lng=pos.coords.longitude.toFixed(5);
+        sendCallRequest(f, lat, lng);
+      },
+      function(){
+        // بدون موقع — نرسل بدونه
+        sendCallRequest(f, null, null);
+      },
+      {enableHighAccuracy:true, timeout:8000}
+    );
+  } else {
+    sendCallRequest(f, null, null);
+  }
+}
+
+function sendCallRequest(farmer, lat, lng){
+  var request = {
+    id: Date.now(),
+    farmerId: farmer.id,
+    farmerName: farmer.name,
+    phone: farmer.phone||'—',
+    lat: lat,
+    lng: lng,
+    time: new Date().toISOString(),
+    status: 'pending'
+  };
+
+  // حفظ في Firebase
+  try{
+    if(window._fbSave){
+      // نجيب البيانات الحالية ونضيف الطلب
+      if(!DB.callRequests) DB.callRequests=[];
+      DB.callRequests.unshift(request);
+      // احتفظ بآخر 20 طلب فقط
+      if(DB.callRequests.length>20) DB.callRequests=DB.callRequests.slice(0,20);
+      saveDB();
+    }
+  }catch(e){}
+
+  showToast('✅ تم إرسال طلب الاستدعاء للملقّح!');
+
+  // اعرض رسالة تأكيد للفلاح
+  var msg='✅ تم إرسال طلب الاستدعاء!\n\nسيصلك الملقّح قريباً إن شاء الله 🐄';
+  if(lat&&lng) msg+='\n\n📍 تم إرسال موقعك الجغرافي';
+  alert(msg);
+}
+
+function renderCallRequests(){
+  if(!DB.callRequests||!DB.callRequests.length){
+    var panel=$('callRequestsPanel');
+    if(panel)panel.style.display='none';
+    return;
+  }
+
+  var panel=$('callRequestsPanel');
+  if(panel)panel.style.display='block';
+
+  var pending=DB.callRequests.filter(function(r){return r.status==='pending';});
+  var done=DB.callRequests.filter(function(r){return r.status==='done';});
+
+  var html='';
+  if(pending.length){
+    html+=pending.map(function(r){
+      var timeStr=new Date(r.time).toLocaleString('ar-DZ');
+      var mapLink=r.lat&&r.lng?'<a href="https://maps.google.com/?q='+r.lat+','+r.lng+'" target="_blank" class="btn out sm">🗺️ الموقع</a>':'<span style="color:var(--text3);font-size:12px">لا يوجد موقع</span>';
+      return'<div class="al-item urg" style="flex-wrap:wrap;gap:8px">'+
+        '<div class="al-icon">📞</div>'+
+        '<div class="al-body">'+
+          '<div class="al-title">'+r.farmerName+'</div>'+
+          '<div class="al-sub">📞 '+r.phone+' | 🕐 '+timeStr+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+
+          mapLink+
+          (r.phone&&r.phone!=='—'?'<a href="tel:'+r.phone+'" class="btn sm">📞 اتصال</a>':'')+
+          (r.phone&&r.phone!=='—'?'<a href="https://wa.me/212'+r.phone.replace(/^0/,'')+'" target="_blank" class="btn sm" style="background:var(--green)">💬 واتساب</a>':'')+
+          '<button class="btn gy sm" onclick="markCallDone('+r.id+')">✅ تمت المعالجة</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  if(done.length){
+    html+='<div style="padding:8px 17px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-top:1px solid var(--border)">تمت المعالجة ('+done.length+')</div>'+
+    done.map(function(r){
+      return'<div class="al-item ok" style="opacity:.6">'+
+        '<div class="al-icon">✅</div>'+
+        '<div class="al-body"><div class="al-title">'+r.farmerName+'</div><div class="al-sub">'+new Date(r.time).toLocaleString('ar-DZ')+'</div></div>'+
+      '</div>';
+    }).join('');
+  }
+  var list=$('callRequestsList');
+  if(list)list.innerHTML=html;
+}
+
+function markCallDone(id){
+  if(!DB.callRequests)return;
+  var r=DB.callRequests.find(function(r){return r.id===id;});
+  if(r){r.status='done';saveDB();renderDash();showToast('✅ تم تحديد الطلب كمعالج');}
+}
+
+function clearCallRequests(){
+  if(!confirm('هل تريد مسح كل طلبات الاستدعاء؟'))return;
+  DB.callRequests=[];saveDB();renderDash();showToast('🗑 تم مسح طلبات الاستدعاء');
+}
+
+// مراقبة Firebase لطلبات جديدة
+function listenCallRequests(){
+  if(!window._fbListen)return;
+  window._fbListen(function(data){
+    if(data&&data.callRequests){
+      var oldCount=(DB.callRequests||[]).filter(function(r){return r.status==='pending';}).length;
+      var newCount=(data.callRequests||[]).filter(function(r){return r.status==='pending';}).length;
+      if(newCount>oldCount&&_user&&_user.role==='admin'){
+        showToast('🔔 طلب استدعاء جديد!');
+        // صوت تنبيه
+        try{var a=new AudioContext();var o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop();},300);}catch(e){}
+      }
+    }
+  });
+}
+
+
+function showManagerView(fId){
+  $('loginPage').classList.remove('show');
+  $('adminView').style.display='none';
+  $('farmerView').style.display='none';
+  $('managerView').style.display='block';
+  var f=gF(fId);
+  if(f) $('mgName').textContent=f.name;
+  goMg('mgDash');
+}
+function goMg(id){
+  document.querySelectorAll('.mg-sec').forEach(function(s){s.style.display='none';});
+  document.querySelectorAll('[data-mg]').forEach(function(b){b.classList.remove('active');});
+  $(id).style.display='block';
+  var nb=document.querySelector('[data-mg="'+id+'"]');if(nb)nb.classList.add('active');
+  if(id==='mgDash') renderMgDash();
+  if(id==='mgNewop') renderMgNewop();
+  if(id==='mgHistory') renderMgHistory();
+  if(id==='mgAlerts') renderMgAlerts();
+  if(id==='mgBirth') renderMgBirth();
+}
+function renderMgDash(){
+  var alerts=buildAlerts();
+  var urgent=alerts.filter(function(a){return a.t==='urg'||a.t==='warn';});
+  var ro=[].concat(DB.ops).reverse().slice(0,5);
+  $('mgDash').innerHTML=
+    '<div class="g4" style="margin-bottom:16px">'+
+      '<div class="sc"><div class="sc-icon">👨‍🌾</div><div class="sc-num" style="color:var(--green)">'+DB.farmers.length+'</div><div class="sc-lbl">فلاح</div></div>'+
+      '<div class="sc"><div class="sc-icon">🐄</div><div class="sc-num" style="color:var(--blue)">'+DB.cows.length+'</div><div class="sc-lbl">بقرة</div></div>'+
+      '<div class="sc"><div class="sc-icon">💉</div><div class="sc-num" style="color:var(--gold)">'+DB.ops.length+'</div><div class="sc-lbl">عملية</div></div>'+
+      '<div class="sc"><div class="sc-icon">🔔</div><div class="sc-num" style="color:var(--red)">'+urgent.length+'</div><div class="sc-lbl">تنبيه</div></div>'+
+    '</div>'+
+    '<div class="panel" style="margin-bottom:15px"><div class="ph"><h2>🔔 التنبيهات العاجلة</h2></div>'+(urgent.length?urgent.map(alertHtml).join(''):'<div class="empty"><div class="empty-icon">✅</div><h3>لا توجد تنبيهات</h3></div>')+'</div>'+
+    '<div class="panel"><div class="ph"><h2>💉 آخر التلقيحات</h2></div>'+
+    (ro.length?'<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>التاريخ</th><th>موعد الفحص</th><th>النتيجة</th><th></th></tr></thead><tbody>'+
+    ro.map(function(o){var fname=o.quick?'⚡ '+o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');var late=isOverdue(o.followUp)&&o.result==='انتظار';return'<tr><td style="font-weight:700">'+fname+'</td><td>🐄 '+cname+'</td><td>'+fmtD(o.date)+'</td><td style="color:'+(late?'var(--red)':'var(--text2)')+'">'+fmtD(o.followUp)+'</td><td>'+rBadge(o.result)+'</td><td><button class="btn out sm" onclick="openResultById('+o.id+');goMg(\'mgHistory\')">✏️</button></td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty"><div class="empty-icon">💉</div><h3>لا توجد عمليات</h3></div>')+'</div>';
+}
+function renderMgNewop(){
+  // نفس نموذج التلقيح العادي لكن مبسط
+  $('mgNewop').innerHTML=
+    '<div class="panel"><div class="ph"><h2>💉 تسجيل تلقيح</h2></div>'+
+    '<div class="fgg">'+
+      '<div class="fg"><label>👨‍🌾 الفلاح *</label><select id="mgOpFarmer" onchange="onMgFarmerChange()"><option value="">— اختر —</option>'+DB.farmers.map(function(f){return'<option value="'+f.id+'">'+f.name+'</option>';}).join('')+'</select></div>'+
+      '<div class="fg"><label>🐄 البقرة *</label><select id="mgOpCow"><option value="">— اختر الفلاح أولاً —</option></select></div>'+
+      '<div class="fg"><label>📅 تاريخ التلقيح *</label><input type="date" id="mgOpDate" onchange="calcMgFollowUp()"></div>'+
+      '<div class="fg"><label>🧬 صنف الثور</label><input type="text" id="mgOpBreed" placeholder="Holstein"></div>'+
+      '<div class="fg"><label>🐂 اسم الثور</label><input type="text" id="mgOpBull" placeholder="Atlas Pro"></div>'+
+      '<div class="fg"><label>📅 موعد فحص الحمل</label><input type="date" id="mgOpFollowUp"></div>'+
+      '<div class="fg full"><label>📝 ملاحظات</label><textarea id="mgOpNotes" rows="2" placeholder="..."></textarea></div>'+
+    '</div>'+
+    '<div class="ff"><button class="btn" onclick="saveMgOp()">💾 حفظ التلقيح</button></div></div>'+
+    '<div class="panel" style="margin-top:15px"><div class="ph"><h2>⚡ تلقيح سريع</h2></div>'+
+    '<div class="fgg">'+
+      '<div class="fg"><label>👨‍🌾 اسم الفلاح *</label><input type="text" id="mgQFarmer" placeholder="اسم الفلاح"></div>'+
+      '<div class="fg"><label>🐄 اسم البقرة *</label><input type="text" id="mgQCow" placeholder="اسم البقرة"></div>'+
+      '<div class="fg"><label>📅 التاريخ *</label><input type="date" id="mgQDate" onchange="calcMgQFollowUp()"></div>'+
+      '<div class="fg"><label>🧬 الصنف</label><input type="text" id="mgQBreed" placeholder="Holstein"></div>'+
+      '<div class="fg"><label>🐂 الثور</label><input type="text" id="mgQBull" placeholder="Atlas Pro"></div>'+
+      '<div class="fg"><label>📅 موعد الفحص</label><input type="date" id="mgQFollowUp"></div>'+
+      '<div class="fg full"><label>📍 الموقع</label><div style="display:flex;gap:8px"><input type="text" id="mgQLocation" placeholder="الموقع الجغرافي" readonly style="flex:1"><button class="btn sm" onclick="getMgLocation()">📡</button></div></div>'+
+    '</div>'+
+    '<div class="ff"><button class="btn" style="background:var(--gold);color:#0a1a0e" onclick="saveMgQuickOp()">⚡ حفظ التلقيح السريع</button></div></div>';
+  var d=new Date();
+  var di=document.getElementById('mgOpDate');if(di&&!di.value)di.value=d.toISOString().slice(0,10);
+  var dq=document.getElementById('mgQDate');if(dq&&!dq.value)dq.value=d.toISOString().slice(0,10);
+  calcMgFollowUp();calcMgQFollowUp();
+}
+function onMgFarmerChange(){
+  var fId=parseInt(document.getElementById('mgOpFarmer')&&document.getElementById('mgOpFarmer').value)||0;
+  var sel=document.getElementById('mgOpCow');if(!sel)return;
+  if(!fId){sel.innerHTML='<option value="">— اختر الفلاح أولاً —</option>';return;}
+  var fc=fCs(fId);
+  sel.innerHTML=fc.length?fc.map(function(c){return'<option value="'+c.id+'">🐄 '+c.name+'</option>';}).join(''):'<option value="">لا توجد أبقار</option>';
+}
+function calcMgFollowUp(){
+  var di=document.getElementById('mgOpDate');var fi=document.getElementById('mgOpFollowUp');
+  if(di&&fi&&di.value){var dt=new Date(di.value+'T00:00:00');dt.setDate(dt.getDate()+21);fi.value=dt.toISOString().slice(0,10);}
+}
+function calcMgQFollowUp(){
+  var di=document.getElementById('mgQDate');var fi=document.getElementById('mgQFollowUp');
+  if(di&&fi&&di.value){var dt=new Date(di.value+'T00:00:00');dt.setDate(dt.getDate()+21);fi.value=dt.toISOString().slice(0,10);}
+}
+function getMgLocation(){
+  var inp=document.getElementById('mgQLocation');
+  if(!navigator.geolocation){showToast('❌ GPS غير متاح');return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    if(inp)inp.value=pos.coords.latitude.toFixed(5)+', '+pos.coords.longitude.toFixed(5);
+    showToast('✅ تم تحديد الموقع');
+  },function(){showToast('❌ فشل تحديد الموقع');});
+}
+function getElVal(id){var el=document.getElementById(id);return el?el.value:'';}
+function saveMgOp(){
+  var fId=parseInt(getElVal('mgOpFarmer'))||0;
+  var cId=parseInt(getElVal('mgOpCow'))||0;
+  var date=getElVal('mgOpDate');
+  if(!fId||!cId||!date){showToast('⚠️ الرجاء اختيار الفلاح والبقرة والتاريخ');return;}
+  var breed=(getElVal('mgOpBreed')||'').trim();var bull=(getElVal('mgOpBull')||'').trim();
+  var semen=breed&&bull?bull+' ('+breed+')':breed||bull||'غير محدد';
+  var followUp=getElVal('mgOpFollowUp');
+  DB.ops.push({id:DB.oid++,farmerId:fId,cowId:cId,date:date,semen:semen,stage:'وسطى (6–18 ساعة) — مثالية',followUp:followUp,notes:getElVal('mgOpNotes'),price:150,result:'انتظار'});
+  showToast('✅ تم تسجيل التلقيح!');saveDB();goMg('mgDash');
+}
+function saveMgQuickOp(){
+  var farmerName=(getElVal('mgQFarmer')||'').trim();
+  var cowName=(getElVal('mgQCow')||'').trim();
+  var date=getElVal('mgQDate');
+  if(!farmerName||!cowName||!date){showToast('⚠️ الرجاء إدخال الفلاح والبقرة والتاريخ');return;}
+  var breed=(getElVal('mgQBreed')||'').trim();var bull=(getElVal('mgQBull')||'').trim();
+  var semen=breed&&bull?bull+' ('+breed+')':breed||bull||'غير محدد';
+  DB.ops.push({id:DB.oid++,farmerId:0,cowId:0,farmerName:farmerName,cowName:cowName,date:date,semen:semen,followUp:getElVal('mgQFollowUp'),notes:'',location:getElVal('mgQLocation'),price:200,result:'انتظار',quick:true});
+  showToast('⚡ تم تسجيل التلقيح السريع!');saveDB();goMg('mgDash');
+}
+function renderMgHistory(){
+  var list=[].concat(DB.ops).reverse();
+  $('mgHistory').innerHTML='<div class="panel"><div class="ph"><h2>📋 سجل التلقيحات</h2></div>'+
+    (list.length?'<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>التاريخ</th><th>موعد الفحص</th><th>النتيجة</th><th></th></tr></thead><tbody>'+
+    list.map(function(o){
+      var fname=o.quick?'⚡ '+o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');
+      var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');
+      var late=isOverdue(o.followUp)&&o.result==='انتظار';
+      return'<tr><td style="font-weight:700">'+fname+'</td><td>🐄 '+cname+'</td><td>'+fmtD(o.date)+'</td><td style="color:'+(late?'var(--red)':'var(--text2)')+'">'+fmtD(o.followUp)+(late?' ⚠️':'')+'</td><td>'+rBadge(o.result)+'</td><td><button class="btn out sm" onclick="openMgResult('+o.id+')">✏️</button></td></tr>';
+    }).join('')+'</tbody></table></div>':'<div class="empty"><div class="empty-icon">📋</div><h3>لا توجد سجلات</h3></div>')+'</div>';
+}
+function openMgResult(opId){
+  // نفس modal تحديث النتيجة
+  openResultById(opId);
+  // بعد الحفظ يرجع لواجهة المسؤل
+}
+function renderMgAlerts(){
+  var list=buildAlerts();
+  $('mgAlerts').innerHTML='<div class="panel"><div class="ph"><h2>🔔 التنبيهات</h2></div>'+(list.length?list.map(alertHtml).join(''):'<div class="empty"><div class="empty-icon">✅</div><h3>لا توجد تنبيهات</h3></div>')+'</div>';
+}
+
+// ════════════════════════════════════════
+// BIRTH REGISTRATION — تسجيل الولادات
+// ════════════════════════════════════════
+function renderMgBirth(){
+  var births=DB.births||[];
+  var today=new Date();today.setHours(0,0,0,0);
+  // تنبيهات أول تلقيح
+  var dueInsem=births.filter(function(b){
+    if(!b.firstInsem)return false;
+    var fd=new Date(b.firstInsem+'T00:00:00');
+    var diff=Math.ceil((fd-today)/86400000);
+    return diff<=7&&diff>=0;
+  });
+
+  $('mgBirth').innerHTML=
+    '<div class="panel" style="margin-bottom:15px">'+
+      '<div class="ph"><h2>🐣 تسجيل ولادة جديدة</h2>'+
+        '<button class="btn" onclick="openBirthModal()">➕ تسجيل</button>'+
+      '</div>'+
+      (dueInsem.length?'<div style="padding:11px 17px;background:var(--goldim);border-bottom:1px solid var(--border)">'+
+        '<div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:7px">⏰ أول تلقيح قريب:</div>'+
+        dueInsem.map(function(b){
+          var fd=new Date(b.firstInsem+'T00:00:00');
+          var diff=Math.ceil((fd-today)/86400000);
+          return'<div class="al-item warn" style="padding:8px 0;border:none"><div class="al-icon">🐄</div><div class="al-body"><div class="al-title">'+b.farmerName+' — '+b.cowName+'</div><div class="al-sub">أول تلقيح: '+fmtD(b.firstInsem)+(diff===0?' (اليوم!)':' (بعد '+diff+' يوم)')+'</div></div></div>';
+        }).join('')+
+      '</div>':'')+'</div>'+
+    '<div class="panel"><div class="ph"><h2>📋 سجل الولادات</h2></div>'+
+    (births.length?'<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>تاريخ الولادة</th><th>الجنس</th><th>أول تلقيح</th><th>ملاحظات</th></tr></thead><tbody>'+
+    [].concat(births).reverse().map(function(b){
+      var fd=new Date(b.firstInsem+'T00:00:00');
+      var diff=Math.ceil((fd-today)/86400000);
+      var cl=diff<=0?'var(--red)':diff<=3?'var(--gold)':'var(--text2)';
+      return'<tr><td style="font-weight:700">'+b.farmerName+'</td><td>🐄 '+b.cowName+'</td><td>'+fmtD(b.date)+'</td><td>'+(b.gender==='ذكر'?'🐂':'🐄')+' '+b.gender+'</td><td style="color:'+cl+';font-weight:700">'+fmtD(b.firstInsem)+(diff===0?' ⚡':diff<0?' ⚠️متأخر':'')+'</td><td style="font-size:12px;color:var(--text2)">'+(b.notes||'—')+'</td></tr>';
+    }).join('')+'</tbody></table></div>':'<div class="empty"><div class="empty-icon">🐣</div><h3>لا توجد ولادات مسجلة</h3></div>')+'</div>';
+}
+function openBirthModal(){
+  // ملء قائمة الفلاحين
+  var sel=$('birth_farmer');
+  sel.innerHTML='<option value="">— اختر الفلاح —</option>'+DB.farmers.map(function(f){return'<option value="'+f.id+'">'+f.name+'</option>';}).join('');
+  $('birth_cow').innerHTML='<option value="">— اختر الفلاح أولاً —</option>';
+  setVal('birth_date','');setVal('birth_firstInsem','');setVal('birth_notes','');setVal('birth_gender','أنثى');
+  var d=new Date();setVal('birth_date',d.toISOString().slice(0,10));calcFirstInsem();
+  openModal('mBirth');
+}
+function onBirthFarmerChange(){
+  var fId=parseInt(val('birth_farmer'))||0;
+  var sel=$('birth_cow');
+  if(!fId){sel.innerHTML='<option value="">— اختر الفلاح أولاً —</option>';return;}
+  var fc=fCs(fId);
+  sel.innerHTML=fc.length?fc.map(function(c){return'<option value="'+c.id+'">🐄 '+c.name+'</option>';}).join(''):'<option value="">لا توجد أبقار</option>';
+}
+function calcFirstInsem(){
+  var d=val('birth_date');
+  if(d){var dt=new Date(d+'T00:00:00');dt.setDate(dt.getDate()+45);setVal('birth_firstInsem',dt.toISOString().slice(0,10));}
+}
+function saveBirth(){
+  var fId=parseInt(val('birth_farmer'))||0;
+  var cId=parseInt(val('birth_cow'))||0;
+  var date=val('birth_date');
+  if(!date){showToast('⚠️ الرجاء إدخال تاريخ الولادة');return;}
+  var f=gF(fId);var c=gC(cId);
+  if(!DB.births)DB.births=[];
+  DB.births.push({
+    id:Date.now(),
+    farmerId:fId,cowId:cId,
+    farmerName:f?f.name:(val('birth_farmer')||'غير محدد'),
+    cowName:c?c.name:(val('birth_cow')||'غير محدد'),
+    date:date,
+    gender:val('birth_gender'),
+    firstInsem:val('birth_firstInsem'),
+    notes:val('birth_notes')
+  });
+  closeModal('mBirth');showToast('✅ تم تسجيل الولادة!');saveDB();renderMgBirth();
+}
+
+// تنبيهات الولادة في buildAlerts
+var _origBuildAlerts=buildAlerts;
+buildAlerts=function(){
+  var list=_origBuildAlerts();
+  if(!DB.births)return list;
+  var today=new Date();today.setHours(0,0,0,0);
+  DB.births.forEach(function(b){
+    if(!b.firstInsem)return;
+    var fd=new Date(b.firstInsem+'T00:00:00');
+    var diff=Math.ceil((fd-today)/86400000);
+    var lbl=b.farmerName+' — '+b.cowName;
+    if(diff<0)list.push({t:'urg',icon:'🐣',title:'أول تلقيح متأخر: '+lbl,sub:'مستحق منذ '+fmtD(b.firstInsem)});
+    else if(diff===0)list.push({t:'urg',icon:'🐣',title:'أول تلقيح اليوم: '+lbl,sub:'45 يوم بعد الولادة — اليوم!'});
+    else if(diff<=3)list.push({t:'warn',icon:'🐣',title:'أول تلقيح قريب: '+lbl,sub:'بعد '+diff+' يوم — '+fmtD(b.firstInsem)});
+  });
+  return list;
+};
+
+// ════════════════════════════════════════
+// PUBLIC CALL — استدعاء عام
+// ════════════════════════════════════════
+function openPublicCall(){
+  setVal('pub_name','');setVal('pub_phone','');setVal('pub_location','');setVal('pub_note','');
+  var st=$('pub_status');if(st)st.style.display='none';
+  var lst=$('pub_location_status');if(lst)lst.textContent='';
+  openModal('mPublicCall');
+}
+function getPubLocation(){
+  var lst=$('pub_location_status');
+  if(!navigator.geolocation){if(lst)lst.textContent='❌ GPS غير متاح';return;}
+  if(lst)lst.textContent='⏳ جاري تحديد موقعك...';
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var lat=pos.coords.latitude.toFixed(5);
+      var lng=pos.coords.longitude.toFixed(5);
+      setVal('pub_location',lat+', '+lng);
+      if(lst)lst.innerHTML='✅ تم | <a href="https://maps.google.com/?q='+lat+','+lng+'" target="_blank" style="color:var(--green)">عرض على الخريطة 🗺️</a>';
+    },
+    function(){if(lst)lst.textContent='❌ فشل — تأكد من تفعيل GPS وإعطاء الإذن';},
+    {enableHighAccuracy:true,timeout:10000}
+  );
+}
+function sendPublicCall(){
+  var name=(val('pub_name')||'').trim();
+  var phone=(val('pub_phone')||'').trim();
+  var st=$('pub_status');
+  if(!name||!phone){showToast('⚠️ الرجاء إدخال الاسم ورقم الهاتف');return;}
+  var loc=val('pub_location');
+  var lat=null,lng=null;
+  if(loc){var parts=loc.split(',');lat=(parts[0]||'').trim();lng=(parts[1]||'').trim();}
+  var request={
+    id:Date.now(),type:'public',
+    farmerName:name,phone:phone,
+    lat:lat,lng:lng,
+    note:val('pub_note'),
+    time:new Date().toISOString(),
+    status:'pending'
+  };
+  if(st){st.style.display='block';st.style.background='var(--gdim)';st.style.color='var(--green)';st.textContent='⏳ جاري الإرسال...';}
+  try{
+    if(!DB.callRequests)DB.callRequests=[];
+    DB.callRequests.unshift(request);
+    if(DB.callRequests.length>30)DB.callRequests=DB.callRequests.slice(0,30);
+    if(window._fbSave){
+      window._fbSave({
+        farmers:DB.farmers,cows:DB.cows,ops:DB.ops,breeds:DB.breeds,bulls:DB.bulls,
+        fid:DB.fid,cid:DB.cid,oid:DB.oid,brid:DB.brid,blid:DB.blid,
+        adminUser:DB.adminUser,adminPass:DB.adminPass,notifyEmail:DB.notifyEmail||'',
+        callRequests:DB.callRequests,births:DB.births||[],features:DB.features||{}
+      });
+    }
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify(DB));}catch(e){}
+    if(st){st.textContent='✅ تم الإرسال! سيصلك الملقّح قريباً إن شاء الله 🐄';}
+    setTimeout(function(){closeModal('mPublicCall');},3000);
+  }catch(e){
+    if(st){st.style.background='var(--reddim)';st.style.color='var(--red)';st.textContent='❌ فشل الإرسال — حاول مجدداً';}
+  }
+}
+
+
+
+
+function renderFinance(){
+  var allOps=DB.ops;
+  var totalRevenue=allOps.reduce(function(s,o){return s+(parseInt(o.price)||0);},0);
+  var totalPaid=DB.farmers.reduce(function(s,f){return s+(f.paid||0);},0);
+  var totalUnpaid=totalRevenue-totalPaid;
+
+  // Stats
+  $('finStats').innerHTML=
+    '<div class="sc"><div class="sc-icon">💰</div><div class="sc-num" style="color:var(--gold)">'+totalRevenue+'</div><div class="sc-lbl">إجمالي المستحق (درهم)</div></div>'+
+    '<div class="sc"><div class="sc-icon">✅</div><div class="sc-num" style="color:var(--green)">'+totalPaid+'</div><div class="sc-lbl">تم الدفع (درهم)</div></div>'+
+    '<div class="sc"><div class="sc-icon">⏳</div><div class="sc-num" style="color:var(--red)">'+totalUnpaid+'</div><div class="sc-lbl">المتبقي (درهم)</div></div>'+
+    '<div class="sc"><div class="sc-icon">💉</div><div class="sc-num" style="color:var(--blue)">'+allOps.length+'</div><div class="sc-lbl">إجمالي العمليات</div></div>';
+
+  // Monthly report
+  var months={};
+  allOps.forEach(function(o){
+    if(!o.date)return;
+    var m=o.date.slice(0,7); // YYYY-MM
+    if(!months[m])months[m]={total:0,count:0};
+    months[m].total+=(parseInt(o.price)||0);
+    months[m].count++;
+  });
+  var monthKeys=Object.keys(months).sort().reverse();
+
+  // Fill month select
+  var sel=$('finMonth');
+  if(sel){
+    var cur=sel.value;
+    sel.innerHTML='<option value="">كل الأشهر</option>'+monthKeys.map(function(m){
+      var parts=m.split('-');
+      return'<option value="'+m+'">'+parts[1]+'/'+parts[0]+'</option>';
+    }).join('');
+    if(cur)sel.value=cur;
+  }
+
+  var filterMonth=val('finMonth')||'';
+  var filteredOps=filterMonth?allOps.filter(function(o){return o.date&&o.date.slice(0,7)===filterMonth;}):allOps;
+  var filtTotal=filteredOps.reduce(function(s,o){return s+(parseInt(o.price)||0);},0);
+
+  if(!filteredOps.length){
+    $('finMonthly').innerHTML='<div class="empty"><div class="empty-icon">📅</div><h3>لا توجد عمليات</h3></div>';
+  } else {
+    $('finMonthly').innerHTML='<div style="overflow-x:auto"><table><thead><tr><th>الفلاح</th><th>البقرة</th><th>التاريخ</th><th>الثور</th><th>الثمن</th><th>النتيجة</th></tr></thead><tbody>'+
+      [].concat(filteredOps).reverse().map(function(o){
+        var fname=o.quick?'⚡ '+o.farmerName:(gF(o.farmerId)?gF(o.farmerId).name:'—');
+        var cname=o.quick?o.cowName:(gC(o.cowId)?gC(o.cowId).name:'—');
+        return'<tr>'+
+          '<td style="font-weight:700">'+fname+'</td>'+
+          '<td>🐄 '+cname+'</td>'+
+          '<td style="color:var(--text2)">'+fmtD(o.date)+'</td>'+
+          '<td style="font-size:12px;color:var(--text2)">'+o.semen+'</td>'+
+          '<td style="color:var(--gold);font-weight:700">'+(o.price||0)+' د</td>'+
+          '<td>'+rBadge(o.result)+'</td>'+
+        '</tr>';
+      }).join('')+
+      '<tr style="background:var(--card2)"><td colspan="4" style="font-weight:700;text-align:left">الإجمالي</td><td style="color:var(--gold);font-weight:900;font-size:15px">'+filtTotal+' د</td><td></td></tr>'+
+    '</tbody></table></div>';
+  }
+
+  // Per farmer
+  if(!DB.farmers.length){
+    $('finFarmers').innerHTML='<div class="empty"><div class="empty-icon">👨‍🌾</div><h3>لا يوجد فلاحون</h3></div>';
+    return;
+  }
+  $('finFarmers').innerHTML=DB.farmers.map(function(f){
+    var fo=fOs(f.id);
+    var total=fo.reduce(function(s,o){return s+(parseInt(o.price)||0);},0);
+    var paid=f.paid||0;
+    var remaining=total-paid;
+    var pct=total>0?Math.round(paid/total*100):0;
+    var clr=remaining===0?'var(--green)':remaining>0?'var(--red)':'var(--text2)';
+    return'<div style="padding:13px 17px;border-bottom:1px solid var(--border)">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:9px">'+
+        '<div style="font-weight:700;font-size:14px">👨‍🌾 '+f.name+'</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+          '<span class="bdg b">'+fo.length+' عملية</span>'+
+          '<span class="bdg y">'+total+' د مستحق</span>'+
+          '<span class="bdg g">'+paid+' د مدفوع</span>'+
+          '<span class="bdg '+(remaining>0?'r':remaining===0?'g':'gr')+'">'+Math.abs(remaining)+' د '+(remaining>0?'متبقي':remaining===0?'مسدد':'زيادة')+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:9px">'+
+        '<div class="prg-lbl"><span>نسبة الدفع</span><span>'+pct+'%</span></div>'+
+        '<div class="prg-track"><div class="prg-fill" style="width:'+pct+'%;background:'+(pct===100?'var(--green)':pct>50?'var(--gold)':'var(--red)')+'"></div></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px">'+
+        '<button class="btn sm" onclick="openPayment('+f.id+')">💵 تسجيل دفعة</button>'+
+        (f.payments&&f.payments.length?'<button class="btn gy sm" onclick="showPaymentHistory('+f.id+')">📋 سجل الدفعات ('+f.payments.length+')</button>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+var _payFarmerId=null;
+function openPayment(fId){
+  _payFarmerId=fId;
+  var f=gF(fId);var fo=fOs(fId);
+  var total=fo.reduce(function(s,o){return s+(parseInt(o.price)||0);},0);
+  var paid=f.paid||0;
+  setVal('pay_farmer',f.name);
+  setVal('pay_total',total+' درهم');
+  setVal('pay_paid',paid+' درهم');
+  setVal('pay_amount','');
+  setVal('pay_note','');
+  openModal('mPayment');
+}
+function savePayment(){
+  var amount=parseInt(val('pay_amount'))||0;
+  if(!amount||amount<=0){showToast('⚠️ الرجاء إدخال مبلغ صحيح');return;}
+  var f=gF(_payFarmerId);if(!f)return;
+  if(!f.paid)f.paid=0;
+  if(!f.payments)f.payments=[];
+  f.paid+=amount;
+  f.payments.push({date:new Date().toISOString().slice(0,10),amount:amount,note:val('pay_note')});
+  closeModal('mPayment');
+  showToast('✅ تم تسجيل دفعة '+amount+' درهم!');
+  saveDB();renderFinance();
+}
+function showPaymentHistory(fId){
+  var f=gF(fId);if(!f||!f.payments||!f.payments.length)return;
+  var html=f.payments.map(function(p){
+    return'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">'+
+      '<div><div style="font-weight:700;color:var(--green)">'+p.amount+' درهم</div><div style="font-size:11px;color:var(--text3)">'+fmtD(p.date)+(p.note?' — '+p.note:'')+'</div></div>'+
+    '</div>';
+  }).join('');
+  alert('سجل دفعات '+f.name+':\n\n'+f.payments.map(function(p){return fmtD(p.date)+': '+p.amount+' د'+(p.note?' ('+p.note+')':'');}).join('\n'));
+}
+
+
+function go(id){
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
+  $(id).classList.add('active');
+  var nb=document.querySelector('[data-s="'+id+'"]');if(nb)nb.classList.add('active');
+  if(id==='dash')renderDash();
+  if(id==='farmers'){fillFarmerSelect();renderFarmers();}
+  if(id==='history')renderHistory();
+  if(id==='alerts')renderAlertsPage();
+  if(id==='semen')renderSemen();
+  if(id==='finance')renderFinance();
+  if(id==='newop'){
+    fillFarmerSelect();
+    var d=new Date();
+    setVal('opDate',d.toISOString().slice(0,10));calcFollowUp();
+    setVal('qopDate',d.toISOString().slice(0,10));calcQuickFollowUp();
+    setVal('qopPrice','200');
+  }
+  if(id==='settings'){
+    var el=$('setInfoUser');if(el)el.textContent=DB.adminUser;
+    var emailEl=$('set_email');if(emailEl&&DB.notifyEmail)emailEl.value=DB.notifyEmail;
+    var st=$('uploadStatus');if(st)st.style.display='none';
+    var est=$('emailStatus');if(est)est.style.display='none';
+    renderFeaturesPanel();
+  }
+}
+
+// ════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════
+function renderAll(){
+  saveDB();updateHeader();renderDash();
+  if($('farmers')&&$('farmers').classList.contains('active'))renderFarmers();
+  if($('history')&&$('history').classList.contains('active'))renderHistory();
+  if($('alerts')&&$('alerts').classList.contains('active'))renderAlertsPage();
+  if($('semen')&&$('semen').classList.contains('active'))renderSemen();
+  if(_user&&_user.role==='farmer')renderFarmerView(_user.farmerId);
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+loadDB();
+if(!DB.adminUser)DB.adminUser='admin';
+if(!DB.adminPass)DB.adminPass='admin123';
+initEmailJS();
+initBiometric();
+applyFeatures();
+var d=new Date();setVal('opDate',d.toISOString().slice(0,10));calcFollowUp();
+setTimeout(function(){checkAndSendDailyEmail();},5000);
+
+// فحص الجلسة
+function checkSession(){
+  try{
+    var s=sessionStorage.getItem(AUTH_KEY);
+    if(s){
+      _user=JSON.parse(s);
+      if(_user.role==='admin') showAdminView();
+      else if(_user.role==='manager') showManagerView(_user.farmerId);
+      else if(_user.role==='farmer') showFarmerView(_user.farmerId);
+    }
+  }catch(e){}
+}
+checkSession();
+
+// Firebase sync
+var _fbListening=false;
+function initFirebaseSync(){
+  if(!window._fbLoad)return;
+  window._fbLoad(function(data){
+    if(data){applyData(data);if(_user)renderAll();showToast('☁️ تم تحميل البيانات من السحابة!');}
+  });
+  if(!_fbListening){_fbListening=true;
+    window._fbListen(function(data){if(data&&_user){applyData(data);renderAll();}});
+    listenCallRequests();
+  }
+}
+if(window._fbReady)initFirebaseSync();
+else document.addEventListener('fbReady',initFirebaseSync);
+</script>
+</body>
+</html>
